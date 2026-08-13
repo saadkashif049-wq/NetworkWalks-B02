@@ -2,15 +2,70 @@
 
 Personal lab notes from my internship, documenting how I set up an isolated Kali Linux practice lab using VirtualBox **NAT Network** (not plain NAT), configured DNS, and took snapshots.
 
-> **Why NAT Network and not just "NAT"?**
-> Plain NAT only lets a VM talk to the internet — VMs can't see each other.
-> **NAT Network** creates a private virtual switch (`10.0.0.0/24` in this lab) so all your VMs (Kali, Windows, Android, etc.) can talk to *each other* AND reach the internet. This is essential for a pentesting lab where you attack one VM from another.
+---
+
+## What You'll Need (Materials to Download)
+
+Before starting, download these three things:
+
+| Tool | Purpose | Link |
+|---|---|---|
+| **7-Zip** | Extracts compressed VM files (`.7z`, `.zip`) | https://7-zip.org/download.html |
+| **VirtualBox** | Runs the virtual machines | https://virtualbox.org/wiki/Downloads |
+| **Kali Linux VM image** | The pentesting OS itself | https://kali.org/get-kali |
+
+**Recommended PC specs** (not mandatory, but smoother experience):
+- 8GB RAM or more
+- 256GB SSD or more
+- Core i3/i5 processor or similar
 
 ---
 
-## Step 1: Create the NAT Network in VirtualBox
+## Step 1: Install 7-Zip
 
-Before touching any VM, the virtual network itself has to exist.
+1. Go to https://7-zip.org/download.html
+2. Download the version matching your system (32-bit or 64-bit Windows)
+3. Run the installer, click through with default options
+4. This is needed later to extract the Kali `.7z` file after downloading it
+
+---
+
+## Step 2: Install VirtualBox
+
+1. Go to https://virtualbox.org/wiki/Downloads
+2. Download the Windows host version
+3. Run the installer — keep default settings, click **Next** through the prompts, allow any driver installation pop-ups
+4. Finish and launch **Oracle VM VirtualBox Manager** to confirm it opens correctly
+
+---
+
+## Step 3: Download & Extract Kali Linux
+
+1. Go to https://kali.org/get-kali
+2. Choose **Virtual Machines** (not the ISO installer — the pre-built VM is faster to set up)
+3. Download the **VirtualBox 64-bit** version
+4. Once downloaded, right-click the `.7z` file → **7-Zip → Extract Here** (this is where 7-Zip from Step 1 is used)
+5. You'll get a folder containing a `.vbox` file and virtual disk files
+
+---
+
+## Step 4: Import Kali into VirtualBox
+
+1. Open **VirtualBox Manager**
+2. Go to **File → Import Appliance**
+3. Browse to the extracted Kali folder and select the `.vbox` (or `.ova`) file
+4. Click **Next**, review the settings (default RAM/CPU is usually fine), click **Import**
+5. Wait for the import to finish — Kali will now appear in your VirtualBox VM list
+
+---
+
+## Step 5: Create the NAT Network in VirtualBox
+
+Now that VirtualBox and Kali are ready, set up the private lab network.
+
+> **Why NAT Network and not just "NAT"?**
+> Plain NAT only lets a VM talk to the internet — VMs can't see each other.
+> **NAT Network** creates a private virtual switch (`10.0.0.0/24` in this lab) so all your VMs (Kali, Windows, Android, etc.) can talk to *each other* AND reach the internet. This is essential for a pentesting lab where you attack one VM from another.
 
 1. Open **Oracle VM VirtualBox Manager**
 2. Go to the top menu: **File → Tools → Network**
@@ -28,14 +83,14 @@ Before touching any VM, the virtual network itself has to exist.
 
 ---
 
-## Step 2: Attach the Kali VM to the NAT Network
+## Step 6: Attach the Kali VM to the NAT Network
 
 1. Right-click your Kali VM in the VirtualBox list → **Settings**
 2. Go to **Network** on the left → **Adapter 1** tab
 3. Check ✅ **Enable Network Adapter**
 4. Set:
    - **Attached to:** `NAT Network`
-   - **Name:** `NatNetwork` (the one you created in Step 1)
+   - **Name:** `NatNetwork` (the one you created in Step 5)
    - **Promiscuous Mode:** `Deny` is fine for normal use. (Only switch this to **Allow All** later if you're doing packet sniffing/traffic capture exercises between VMs.)
 5. Click **OK**
 
@@ -44,7 +99,7 @@ Before touching any VM, the virtual network itself has to exist.
 
 ---
 
-## Step 3: Boot Kali and Open Network Settings
+## Step 7: Boot Kali and Open Network Settings
 
 1. Start the Kali VM
 2. On the Kali desktop, click the **network icon** in the top-right corner of the taskbar
@@ -61,7 +116,7 @@ Before touching any VM, the virtual network itself has to exist.
 
 ---
 
-## Step 4: Set the Static IP Address and DNS
+## Step 8: Set the Static IP Address and DNS
 
 1. In the **Editing Wired connection 1** window, go to the **IPv4 Settings** tab
 2. Under **Method**, you can leave it as `Automatic (DHCP)` and just add a static address underneath (as shown below), or switch Method to `Manual` — both work as long as the address is set
@@ -79,15 +134,15 @@ Before touching any VM, the virtual network itself has to exist.
 
 ---
 
-## Step 5: Fix Internet Issues (Kali 2026.1+ only)
+## Step 9: Fix Internet Issues (Kali 2026.1+ only)
 
-Newer Kali versions can have a network bug where the connection hangs due to IPv4 "duplicate address detection" (DAD) taking too long. If your internet doesn't work after Step 4:
+Newer Kali versions can have a network bug where the connection hangs due to IPv4 "duplicate address detection" (DAD) taking too long. If your internet doesn't work after Step 8:
 
 1. Open a terminal in Kali
 2. Run this command:
-   ```bash
+```bash
    sudo nmcli connection modify "Wired connection 1" ipv4.dad-timeout 0
-   ```
+```
 3. Enter your password when prompted
 4. Reconnect the network (or reboot the VM) and test again
 
@@ -96,15 +151,15 @@ Newer Kali versions can have a network bug where the connection hangs due to IPv
 
 ---
 
-## Step 6: Verify the IP Configuration
+## Step 10: Verify the IP Configuration
 
 Confirm the static IP actually applied correctly.
 
 1. Open a terminal
 2. Run:
-   ```bash
+```bash
    ifconfig
-   ```
+```
 3. Check the `eth0` section — it should show:
    - `inet 10.0.0.2`
    - `netmask 255.255.255.0`
@@ -115,7 +170,7 @@ Confirm the static IP actually applied correctly.
 
 ---
 
-## Step 7: Test Internet Connectivity
+## Step 11: Test Internet Connectivity
 
 Open Firefox inside Kali and browse to confirm DNS + internet access is working end-to-end.
 
@@ -127,7 +182,7 @@ Open Firefox inside Kali and browse to confirm DNS + internet access is working 
 
 ---
 
-## Step 8: Take a Snapshot
+## Step 12: Take a Snapshot
 
 Once everything works — IP is set, internet works — **snapshot it immediately**. This is your "clean" restore point. If you break something later (bad exploit, misconfiguration, malware testing gone wrong), you can roll back in seconds instead of reinstalling.
 
@@ -144,7 +199,11 @@ Once everything works — IP is set, internet works — **snapshot it immediatel
 
 ## ✅ Quick Recap Checklist
 
-- [ ] Created **NAT Network** (`10.0.0.0/24`) in VirtualBox — *not* Host-only
+- [ ] Downloaded & installed 7-Zip
+- [ ] Downloaded & installed VirtualBox
+- [ ] Downloaded & extracted Kali Linux VM
+- [ ] Imported Kali into VirtualBox
+- [ ] Created **NAT Network** (`10.0.0.0/24`) — *not* Host-only
 - [ ] Attached Kali's Adapter 1 to that NAT Network
 - [ ] Set static IP `10.0.0.2/24`, gateway `10.0.0.1`
 - [ ] Set DNS to `8.8.8.8` (fallback: `10.0.0.1`)
