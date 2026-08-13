@@ -25,12 +25,7 @@ Networkwalks Academy offers training in Ethical Hacking, Cybersecurity, Cisco
 CCNA, AI, Linux, and Python Programming.
 🌐 [networkwalks.com](https://networkwalks.com)
 
-## Repo Contents
 
-| File/Folder | Description |
-|---|---|
-| `README.md` | Step-by-step lab setup guide with screenshots |
-| `images/` | Screenshots documenting each configuration step |
 
 ## Disclaimer
 
