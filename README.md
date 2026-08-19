@@ -34,5 +34,5 @@ permission to test.
 
 ---
 
-*Internship Duration: [ start date ] – [ end date / ongoing ]*
+*Internship Duration: [ 09-August-2026 ] – [  ongoing ]*
 *Mentor: Waqas Karim (CCIE)*
