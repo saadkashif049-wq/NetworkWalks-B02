@@ -311,47 +311,6 @@ A defensive review should consider:
 
 ---
 
-## 📝 Report Checklist
-
-### Command Execution
-
-- [ ] Opened a Kali Linux terminal.
-- [ ] Executed `nslookup networkwalks.com`.
-- [ ] Recorded the date, time, timezone, and testing environment.
-- [ ] Saved the output to `task-3-nslookup.txt`.
-- [ ] Captured a screenshot of the complete command and output.
-
-### Technical Observations
-
-- [ ] Identified the resolver shown after `Server:`.
-- [ ] Identified the resolver address and DNS port.
-- [ ] Determined whether the response was authoritative or non-authoritative.
-- [ ] Recorded the returned domain name.
-- [ ] Recorded the returned IPv4 address.
-- [ ] Checked whether multiple addresses were returned.
-- [ ] Noted any `CNAME`, timeout, `NXDOMAIN`, `SERVFAIL`, or other error.
-
-### Optional Validation
-
-```bash
-nslookup -type=A networkwalks.com
-nslookup -type=NS networkwalks.com
-nslookup networkwalks.com 8.8.8.8
-```
-
-- [ ] Compared results from permitted resolvers.
-- [ ] Documented any differences between responses.
-
-### Report Interpretation
-
-- [ ] Explained what `nslookup` does.
-- [ ] Described the DNS resolution mechanism.
-- [ ] Distinguished recursive and authoritative DNS servers.
-- [ ] Explained `Non-authoritative answer`.
-- [ ] Included the observed IP address as a time-specific result.
-- [ ] Discussed the authorized attacker perspective.
-- [ ] Discussed defensive implications.
-- [ ] Confirmed that all testing remained within scope.
 
 ---
 
