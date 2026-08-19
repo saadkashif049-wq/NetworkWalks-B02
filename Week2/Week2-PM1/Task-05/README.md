@@ -173,10 +173,8 @@ Take a screenshot showing:
 ```text
 Task-4-curl/
 ├── README.md
-├── task-4-curl-headers.txt
-├── task-4-curl-redirects.txt
-└── screenshots/
-    └── curl-networkwalks.png
+├── curl -I.txt
+└── image.png
 ```
 
 ---
