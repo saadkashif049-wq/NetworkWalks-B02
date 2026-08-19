@@ -182,8 +182,8 @@ Always record the result returned by your own execution because DNS responses ma
 Task-3-nslookup/
 ├── README.md
 ├── task-3-nslookup.txt
-└── screenshots/
-    └── nslookup-networkwalks.png
+└── image.png
+  
 ```
 
 ---
