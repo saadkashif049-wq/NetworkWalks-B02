@@ -171,9 +171,8 @@ Take a screenshot showing:
 ```text
 Task-2-whatweb/
 ├── README.md
-├── task-2-whatweb.txt
-└── screenshots/
-    └── whatweb-networkwalks.png
+├── whatweb.txt
+└── image.png
 ```
 
 ---
