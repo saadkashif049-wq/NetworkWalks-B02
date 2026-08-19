@@ -1,4 +1,4 @@
-# Task 4 — HTTP Header Analysis with `curl`
+# Task 5 — HTTP Header Analysis with `curl`
 
 ![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
 ![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
@@ -405,7 +405,7 @@ HTTP headers should be treated as evidence about the server’s public behavior,
 
 <div align="center">
 
-**Week 2 | Project Module 1 | Task 4**
+**Week 2 | Project Module 1 | Task 5**
 
 ![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
