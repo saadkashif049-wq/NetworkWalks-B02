@@ -1,0 +1,335 @@
+====================================================================
+DNS, HOSTING & SERVER CONCEPTS - COMPLETE NOTES
+Ethical Hacking Internship - Week 2 - Footprinting Lab (Networkwalks)
+====================================================================
+
+--------------------------------------------------------------------
+1. DOMAIN vs WEB SERVER - BASIC DIFFERENCE
+--------------------------------------------------------------------
+
+Domain Name  = just a human-friendly NAME (e.g. networkwalks.com)
+             = does NOT do anything by itself, no files, no content
+
+Web Server   = an actual computer (physical/virtual) that stores
+               website files (HTML, images, code) and sends them
+               out when requested
+
+DNS          = the "phonebook" that links domain name -> IP address
+
+ANALOGY:
+   Domain name  = a person's name ("John Smith")
+   Web server   = John's actual house
+   DNS          = the phonebook that tells you John's address
+
+
+--------------------------------------------------------------------
+2. WHAT HAPPENS WHEN YOU TYPE A DOMAIN IN THE BROWSER (FULL FLOW)
+--------------------------------------------------------------------
+
+STEP 1: You type "networkwalks.com" in browser
+        Your computer doesn't know the IP yet.
+
+STEP 2: Browser asks a DNS RESOLVER (e.g. Google 8.8.8.8, or your
+        ISP/router's DNS) -> "What is the IP of networkwalks.com?"
+
+STEP 3: The resolver doesn't know the answer itself, so it asks the
+        AUTHORITATIVE DNS SERVER for that domain (e.g. HostGator's
+        ns6135.hostgator.com) -> "What is networkwalks.com's IP?"
+
+STEP 4: The authoritative DNS server replies:
+        "networkwalks.com = 192.232.216.135"
+
+STEP 5: This answer is passed back to your browser.
+
+STEP 6: Your browser now connects DIRECTLY to that IP
+        (192.232.216.135) and also sends a "Host" header
+        (explained in section 5) telling the server exactly
+        which website it wants.
+
+STEP 7: The web server reads the Host header, finds the matching
+        website's files, and sends the page back.
+        Website loads. ✅
+
+VISUAL FLOW:
+   [Browser]
+      -> "What's the IP of networkwalks.com?"
+   [DNS Resolver - e.g. Google 8.8.8.8]
+      -> asks ->
+   [Authoritative DNS Server - ns6135.hostgator.com, IP: 50.87.144.87]
+      -> replies "192.232.216.135"
+   [Resolver forwards answer to Browser]
+   [Browser connects to 192.232.216.135 + sends "Host: networkwalks.com"]
+   [Web Server serves the correct website] ✅
+
+
+--------------------------------------------------------------------
+3. TWO TYPES OF DNS SERVERS (KEY CONCEPT)
+--------------------------------------------------------------------
+
+A) AUTHORITATIVE DNS SERVER
+   - Holds the "master record" for a specific domain
+   - Example: ns6135.hostgator.com / ns6136.hostgator.com
+   - This is the server networkwalks.com's owner assigned via
+     their registrar (GoDaddy) to manage DNS
+   - This is the "real source of truth" for that domain
+
+B) RESOLVER DNS SERVER
+   - The server YOUR computer/network is configured to use
+   - Example: Google's 8.8.8.8, or your ISP/router's DNS
+   - It does NOT hold the original record - it asks the
+     authoritative server and relays/caches the answer for you
+
+ANALOGY:
+   Authoritative DNS Server = the original property registry office
+   Resolver                = your local info center that calls the
+                              registry office on your behalf
+
+
+--------------------------------------------------------------------
+4. WHY THERE ARE TWO DIFFERENT IPs (COMMON CONFUSION - CLARIFIED)
+--------------------------------------------------------------------
+
+In dnsrecon/whois output you will see TWO different IP addresses:
+
+    DNS Server IP  (ns6135.hostgator.com)  -> 50.87.144.87
+    Web Server IP  (networkwalks.com)      -> 192.232.216.135
+
+These are DIFFERENT because they are TWO SEPARATE MACHINES with
+TWO SEPARATE JOBS:
+
+   - DNS Server  = only tells you "where the website is"
+                   (like a receptionist/directory service)
+   - Web Server   = actually HOLDS the website's files
+                   (like the shelf where the book physically is)
+
+ANALOGY (Library):
+   You ask the receptionist (DNS server) "Where is Harry Potter?"
+   Receptionist says "Shelf 42" (gives you a location, doesn't hold
+   the book itself)
+   You then go to Shelf 42 (Web server) to get the actual book.
+
+   The receptionist's desk has its own location (50.87.144.87)
+   Shelf 42 has a different location (192.232.216.135)
+   Both are real, both are different - this is NORMAL and expected.
+
+WHY SEPARATE MACHINES?
+   Hosting companies (like HostGator) run DEDICATED DNS servers
+   separately from the servers that host actual websites. This:
+   - Keeps DNS lookups fast and reliable
+   - Means if a web server goes down, DNS service still works
+   - Distributes load between different specialized machines
+
+
+--------------------------------------------------------------------
+5. HOW ONE IP CAN HOST MULTIPLE WEBSITES (SHARED HOSTING)
+--------------------------------------------------------------------
+
+QUESTION: If many websites share the same server (same IP), how
+does the server know WHICH website to show?
+
+ANSWER: The "HTTP Host Header" (for regular HTTP/HTTPS)
+
+When the browser sends a request to the server's IP, it includes
+an extra line of information:
+
+    GET / HTTP/1.1
+    Host: networkwalks.com
+
+This "Host:" header tells the server EXACTLY which website's files
+to serve, even though hundreds of different domains might resolve
+to the exact same IP address.
+
+This setup is called "VIRTUAL HOSTING" or "name-based hosting" -
+extremely common with hosting companies (HostGator, GoDaddy,
+Bluehost) who put many customer websites on one shared server.
+
+ANALOGY (Apartment Building):
+   IP address        = the building's street address (same for all)
+   Domain name        = a specific apartment/flat number inside
+   Host header         = telling the guard "I want flat number 5"
+                         so you get routed to the correct flat,
+                         not disturbing the other 9 flats
+
+For HTTPS specifically, there's an additional mechanism called
+SNI (Server Name Indication) that does a similar job during the
+encrypted connection setup (TLS handshake), before any encrypted
+data is exchanged - so the server knows which SSL certificate to
+use even before the Host header is readable.
+
+WHO READS THE HOST HEADER ON THE SERVER?
+   Web server software installed on that machine (e.g. Apache,
+   Nginx - this is what "whatweb" detects). This software checks
+   the Host header and serves the matching website's files.
+
+
+--------------------------------------------------------------------
+6. PRIVATE IP vs PUBLIC IP
+--------------------------------------------------------------------
+
+PRIVATE IP:
+   - Only valid inside a local network (e.g. home WiFi)
+   - NOT directly reachable from the internet
+   - Reserved ranges:
+        10.0.0.0   - 10.255.255.255
+        172.16.0.0 - 172.31.255.255
+        192.168.0.0 - 192.168.255.255
+   - Example: your phone/laptop at home might have 192.168.1.5
+
+PUBLIC IP:
+   - Reachable from anywhere on the internet
+   - Unique across the whole internet
+   - Required for anything that needs to be accessed by the
+     public - like websites and DNS servers
+
+CHECKED IN THIS LAB:
+   192.232.216.135 (web server)     -> PUBLIC IP ✅
+   50.87.144.87    (DNS server)     -> PUBLIC IP ✅
+
+   Both need to be public because random people/computers all
+   over the world need to be able to reach them.
+
+
+--------------------------------------------------------------------
+7. WHOSE IP SHOWS UP - OWNER'S PERSONAL PC OR HOSTING SERVER?
+--------------------------------------------------------------------
+
+IMPORTANT CLARIFICATION:
+
+When you buy hosting (e.g. from HostGator) and upload your website
+files, those files live on THE HOSTING COMPANY'S SERVER in their
+data center - NOT on your personal laptop/computer at home.
+
+So the IP address that shows up in DNS/whois lookups
+(e.g. 192.232.216.135) belongs to:
+   -> The HOSTING COMPANY'S SERVER
+
+It does NOT belong to:
+   -> The website owner's personal computer/laptop
+
+ANALOGY (Mall):
+   You rent a shop inside a mall (hosting).
+   Your goods (website files) are stored in that shop
+   (the mall's building, not your house).
+   The mall's address is public (so customers can visit) -
+   but your home address was never involved.
+
+WHO DOES AN ATTACKER ACTUALLY TARGET?
+   If an attacker gets the IP (192.232.216.135), they target the
+   HOSTING SERVER (where the website files are) - NOT the personal
+   device of the website owner. The owner's personal computer is
+   not part of this exposure at all under normal hosting setups.
+
+NOTE ON SHARED HOSTING RISK:
+   If multiple websites share the same server, a server-level
+   compromise (e.g. attacker exploits the OS/server software
+   itself) could affect ALL websites on that server - but this
+   still only affects the HOSTING SERVER, never the personal
+   device of any individual site owner.
+
+
+--------------------------------------------------------------------
+8. TWO DIFFERENT TYPES OF "FIREWALL" (COMMON CONFUSION)
+--------------------------------------------------------------------
+
+A) NETWORK FIREWALL (e.g. Cisco ASA, Cisco Firepower, Fortinet,
+   Palo Alto)
+   - Works at the NETWORK level (IP addresses, ports, protocols)
+   - Question it asks: "Is this connection allowed on this
+     IP/port?"
+   - Protects an ENTIRE network/infrastructure (not just one
+     website) - servers, employee computers, internal systems
+   - Common in enterprise/corporate environments
+
+B) WEB APPLICATION FIREWALL - WAF (e.g. ModSecurity, Cloudflare
+   WAF, Sucuri, Akamai)
+   - Works at the APPLICATION/content level
+   - Question it asks: "Does this HTTP request contain a
+     malicious pattern (SQLi, XSS, etc.)?"
+   - Protects a SPECIFIC website's traffic only
+   - This is what "wafw00f" tool detects in this lab
+
+ANALOGY (Office Building):
+   Network Firewall = main gate security guard (checks who/what
+                       can enter the building at all)
+   WAF               = receptionist inside a specific office
+                       (checks what you're carrying into THAT
+                       office specifically)
+
+REAL WORLD: Large organizations often use BOTH layers together:
+   Internet -> Network Firewall (protects whole network)
+            -> WAF (protects specific websites)
+            -> Actual Server
+
+
+--------------------------------------------------------------------
+9. WHY WEBSITES NEED TO BE "ON" 24/7
+--------------------------------------------------------------------
+
+QUESTION: If my website must respond to requests from anyone in
+the world at any time, doesn't that mean I need to keep a server
+running 24/7 myself?
+
+ANSWER: Yes, a server DOES need to run 24/7 for a website to be
+reachable at all times - BUT you don't have to run/manage this
+yourself.
+
+THIS IS EXACTLY WHAT HOSTING COMPANIES DO:
+   - Hosting companies (HostGator, GoDaddy, Bluehost, etc.) run
+     large DATA CENTERS - buildings full of servers that run
+     continuously
+   - These have backup power, cooling, redundant internet
+     connections, etc. to avoid downtime
+   - When you buy hosting, you are essentially RENTING space on
+     their always-on servers
+   - They take on the responsibility of keeping the server
+     running, updated, and secure
+
+ANALOGY:
+   Option 1: Build your own shop building - manage your own
+             electricity, security, generator (= self-hosting,
+             expensive/hard for individuals)
+   Option 2: Rent a shop inside a mall - the mall handles
+             electricity/security/maintenance 24/7 for you
+             (= using a hosting company, what most people do)
+
+Both small websites (via shared hosting) and huge companies
+(via their own massive data centers - Google, Amazon, etc.) rely
+on SOME machine running 24/7 - the difference is WHO owns/manages
+that machine.
+
+
+--------------------------------------------------------------------
+10. QUICK REFERENCE SUMMARY TABLE
+--------------------------------------------------------------------
+
+TERM                  MEANING
+--------------------  --------------------------------------------
+Domain Name            Human-friendly website name (no content
+                        itself)
+Web Server              Machine that stores & serves website files
+DNS                     System that maps domain names to IP
+                        addresses
+Authoritative DNS       The "official" server holding a domain's
+Server                  real DNS records
+Resolver DNS Server     The server your device queries, which asks
+                        the authoritative server for you
+A Record                DNS record type: domain -> IP address
+NS Record               DNS record type: which servers manage this
+                        domain's DNS
+MX Record               DNS record type: where email for this
+                        domain goes
+TXT/SPF Record          DNS record type: text info, often used for
+                        email security policy
+Host Header             Extra info sent with an HTTP request so a
+                        shared server knows which website to serve
+Private IP              Only valid inside a local network, not
+                        internet-reachable
+Public IP               Reachable from anywhere on the internet
+Network Firewall        Protects an entire network (IP/port level)
+                        - e.g. Cisco
+WAF (Web App Firewall)  Protects a specific website's traffic
+                        (content level) - e.g. ModSecurity
+
+====================================================================
+END OF NOTES
+====================================================================
