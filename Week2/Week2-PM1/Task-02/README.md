@@ -306,14 +306,3 @@ Fingerprinting results should always be validated before being treated as confir
 
 </div>
 
-> **Final note:** Run the command, save the complete output, capture the screenshot, and record the current result before submitting the task.
-
----
-
-## GitHub Push Commands
-
-```bash
-git add README.md task-2-whatweb.txt screenshots/
-git commit -m "docs: add Task 2 whatweb reconnaissance report"
-git push origin main
-```
