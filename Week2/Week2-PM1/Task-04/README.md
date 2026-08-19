@@ -1,14 +1,14 @@
-# Task 4 — HTTP Header Analysis with `curl`
+# Task 5 — Web Application Firewall Detection with `wafw00f`
 
 ![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
 ![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
-![Task](https://img.shields.io/badge/Task-04%20%7C%20curl-success?style=flat-square )
+![Task](https://img.shields.io/badge/Task-05%20%7C%20wafw00f-success?style=flat-square )
 ![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-557C94?style=flat-square )
 ![Purpose](https://img.shields.io/badge/Purpose-Educational%20Only-yellow?style=flat-square )
 
 > **Project:** Week 2 — Project Module 1: Footprinting and Reconnaissance
 >
-> **Objective:** Read the HTTP response headers of `networkwalks.com` to identify the server response, status code, cookies, redirects, caching information, and publicly exposed technologies.
+> **Objective:** Determine whether `networkwalks.com` is protected by a Web Application Firewall (WAF) and identify the detected WAF technology, if possible.
 >
 > **Authorization:** Perform reconnaissance only against websites and systems you own or have explicit permission to assess.
 
@@ -16,72 +16,108 @@
 
 ## Table of Contents
 
-- [What Is `curl`?](#what-is-curl)
+- [What Is `wafw00f`?](#what-is-wafw00f)
+- [What Is a WAF?](#what-is-a-waf)
 - [How It Works](#how-it-works)
 - [Command Syntax](#command-syntax)
 - [Step-by-Step: Running the Task](#step-by-step-running-the-task)
 - [Reading the Output](#reading-the-output)
-- [Important HTTP Headers](#important-http-headers )
-- [Redirects, Cookies, and Hidden Endpoints](#redirects-cookies-and-hidden-endpoints)
+- [Observed Result](#observed-result)
 - [🔴 Attacker Perspective](#-attacker-perspective)
 - [🔵 Defender Perspective](#-defender-perspective)
 - [Conclusion](#conclusion)
 
 ---
 
-## What Is `curl`?
+## What Is `wafw00f`?
 
-`curl` is a command-line tool used to transfer data to and from servers using network protocols such as HTTP and HTTPS.
+`wafw00f` is a command-line tool used to identify whether a website is protected by a Web Application Firewall. When possible, it also attempts to identify the WAF product or vendor.
 
-For this task, the `-I` option is used to request only the HTTP response headers instead of downloading the complete webpage.
+The tool may analyze how a website responds to different requests and compare the responses with known WAF behavior and signatures.
+
+For this task, the target is:
+
+```text
+networkwalks.com
+```
 
 The required command is:
 
 ```bash
-curl -I https://networkwalks.com
+wafw00f networkwalks.com
 ```
 
-HTTP headers can reveal useful information about how a web server handles requests and responses, including:
+> **Important:** WAF detection is based on observable behavior and signatures. A negative result does not prove that no firewall or security control exists.
 
-- HTTP status codes.
-- Web-server banners.
-- Redirect locations.
-- Cookies.
-- Cache behavior.
-- Content types.
-- Security headers.
-- Proxy and CDN information.
-- Publicly visible technology indicators.
+---
 
-> **Important:** Header information is useful for fingerprinting, but a single response does not always reveal the complete web stack.
+## What Is a WAF?
+
+A **Web Application Firewall**, or WAF, is a security control that monitors and filters HTTP and HTTPS traffic sent to a web application.
+
+A WAF may help detect or block suspicious requests such as:
+
+- SQL injection attempts.
+- Cross-site scripting payloads.
+- Path traversal attempts.
+- Malicious file-upload requests.
+- Automated scanning activity.
+- Abnormal request patterns.
+- Known exploit signatures.
+
+A WAF may operate directly on the web server, in front of the application, through a reverse proxy, or as part of a cloud security service.
+
+### Basic WAF Position
+
+```text
+Client request
+      |
+      v
+Web Application Firewall
+      |
+      |  Inspects and filters HTTP/HTTPS traffic
+      v
+Web server or web application
+      |
+      v
+Response returned to the client
+```
+
+A WAF is not a replacement for secure coding, patch management, authentication controls, network segmentation, or regular security testing.
 
 ---
 
 ## How It Works
 
-When the command is executed, `curl` establishes an HTTPS connection to the target and sends a request asking for the response headers.
+When `wafw00f` is executed, it sends controlled web requests to the target and examines the responses.
 
-### Request Flow
+### Detection Flow
 
 ```text
 Kali Linux terminal
         |
-        |  curl -I https://networkwalks.com
+        |  wafw00f networkwalks.com
         v
-HTTPS connection to the target
+Target website or security gateway
         |
-        |  Sends a HEAD request
+        |  Returns normal or filtered responses
         v
-Web server processes the request
+wafw00f compares response behavior
         |
-        |  Returns HTTP response headers
         v
-curl displays the headers in the terminal
+Possible WAF vendor or product is displayed
 ```
 
-The `-I` option requests the headers without retrieving the complete response body. This makes it useful for quickly observing the server's response behavior.
+The tool may look for indicators such as:
 
-The command may reveal information from the web server, reverse proxy, CDN, caching system, application framework, or security middleware.
+1. Response status codes.
+2. HTTP headers.
+3. Cookies and naming patterns.
+4. Blocking or challenge pages.
+5. Response differences caused by unusual requests.
+6. Known signatures associated with WAF products.
+
+Because WAF detection involves sending requests to the target, it should be performed only within an authorized assessment scope.
 
 ---
 
@@ -90,39 +126,37 @@ The command may reveal information from the web server, reverse proxy, CDN, cach
 ### Basic Syntax
 
 ```text
-curl [options] URL
+wafw00f [options] target
 ```
 
 Required command:
 
 ```bash
-curl -I https://networkwalks.com
+wafw00f networkwalks.com
 ```
 
 ### Useful Variations
 
 | Command | Purpose |
 |---|---|
-| `curl -I https://networkwalks.com` | Request HTTP response headers only. |
-| `curl -i https://networkwalks.com` | Display headers together with the response body. |
-| `curl -L -I https://networkwalks.com` | Follow redirects and display headers from the redirect chain. |
-| `curl -v -I https://networkwalks.com` | Display detailed connection and request information. |
-| `curl -sS -I https://networkwalks.com` | Run quietly while still showing errors. |
-| `curl -k -I https://networkwalks.com` | Ignore certificate verification errors; use only in an authorized lab. |
-| `curl -A "Mozilla/5.0" -I https://networkwalks.com` | Send a custom User-Agent header. |
+| `wafw00f networkwalks.com` | Perform a standard WAF detection scan. |
+| `wafw00f -a networkwalks.com` | Attempt to identify all possible WAF products. |
+| `wafw00f -v networkwalks.com` | Display verbose detection information. |
+| `wafw00f -l` | List supported WAF signatures. |
+| `wafw00f -h` | Display the help menu. |
 
 ### Recommended Evidence Command
 
-Display the headers and save them to a file:
+Display the result and save a copy to a text file:
 
 ```bash
-curl -I https://networkwalks.com | tee task-4-curl-headers.txt
+wafw00f networkwalks.com | tee task-5-wafw00f.txt
 ```
 
-To follow redirects and save the complete header chain:
+For a more detailed result, where permitted:
 
 ```bash
-curl -L -I https://networkwalks.com | tee task-4-curl-redirects.txt
+wafw00f -v networkwalks.com | tee task-5-wafw00f-verbose.txt
 ```
 
 ---
@@ -133,47 +167,39 @@ curl -L -I https://networkwalks.com | tee task-4-curl-redirects.txt
 
 Launch a terminal in Kali Linux.
 
-### 2. Confirm That `curl` Is Available
+### 2. Confirm That `wafw00f` Is Available
 
 ```bash
-which curl
+which wafw00f
 ```
 
 ### 3. Run the Required Command
 
 ```bash
-curl -I https://networkwalks.com
+wafw00f networkwalks.com
 ```
 
 ### 4. Save the Output
 
 ```bash
-curl -I https://networkwalks.com | tee task-4-curl-headers.txt
+wafw00f networkwalks.com | tee task-5-wafw00f.txt
 ```
 
-### 5. Check for Redirects
-
-```bash
-curl -L -I https://networkwalks.com
-```
-
-The `-L` option follows redirects and displays the final response. This can help identify whether the site redirects between HTTP and HTTPS, between domains, or between different paths.
-
-### 6. Capture Evidence
+### 5. Capture Evidence
 
 Take a screenshot showing:
 
 - The Kali Linux terminal.
 - The command that was executed.
-- The complete HTTP header output.
+- The complete `wafw00f` output.
 - The terminal prompt or timestamp, if available.
 
-### 7. Organize the Evidence
+### 6. Organize the Evidence
 
 ```text
-Task-4-curl/
+Task-5-wafw00f/
 ├── README.md
-├── I-Curl.txt
+├── wafw00f.txt
 └── image.png
 ```
 
@@ -181,229 +207,117 @@ Task-4-curl/
 
 ## Reading the Output
 
-A typical response may look similar to this:
+A typical result may look similar to this:
 
 ```text
-HTTP/2 200
-server: Apache
-content-type: text/html; charset=UTF-8
-cache-control: max-age=600
-set-cookie: example=value; Secure; HttpOnly
-x-powered-by: PHP
-link: <https://networkwalks.com/wp-json/>; rel="https://api.w.org/"
+[*] Checking https://networkwalks.com
+[+] The site networkwalks.com is behind ModSecurity (SpiderLabs )
 ```
 
-The exact response depends on the current website configuration, web server, proxy, CDN, and application state.
+The exact output may vary depending on the target's configuration, DNS routing, reverse proxy, CDN, and WAF behavior.
 
-| Header or Output | Meaning |
+| Output Element | Meaning |
 |---|---|
-| `HTTP/2 200` | The request succeeded and the server returned a successful response. |
-| `server: Apache` | The response identifies Apache as the web server. |
-| `content-type` | Indicates the type and character encoding of the returned content. |
-| `cache-control` | Defines how browsers and intermediate systems should cache the response. |
-| `set-cookie` | Instructs the client to store a cookie. |
-| `location` | Identifies the destination of a redirect. |
-| `x-powered-by` | May disclose the application runtime or framework. |
-| `link` | May expose related resources, API endpoints, or application metadata. |
+| `Checking` | The target URL being tested. |
+| `is behind` | The tool identified behavior associated with a WAF. |
+| `ModSecurity` | The detected WAF technology or product family. |
+| `SpiderLabs` | The organization associated with the identified ModSecurity technology. |
+| `No WAF detected` | No supported WAF signature was identified; this does not prove that no security control exists. |
+
+### Possible Results
+
+#### WAF Detected
+
+The tool identifies a likely WAF product or vendor based on response behavior and known signatures.
+
+#### WAF Not Detected
+
+The tool does not identify a supported WAF signature. The target may still use an unknown, customized, cloud-based, or intentionally hidden security control.
+
+#### Multiple WAFs or Uncertain Result
+
+The target may use multiple layers, a CDN, a reverse proxy, or a security service that produces overlapping indicators.
+
+> **Interpretation rule:** Treat the result as an indicator rather than absolute proof. Detection tools can produce false positives and false negatives.
 
 ---
 
-## Important HTTP Headers
+## Observed Result
 
-### HTTP Status Code
-
-The first line contains the HTTP version and status code.
-
-| Status Code | General Meaning |
-|---|---|
-| `200 OK` | The request succeeded. |
-| `301 Moved Permanently` | The resource has permanently moved to another location. |
-| `302 Found` | The server is temporarily redirecting the request. |
-| `403 Forbidden` | The server understood the request but refuses access. |
-| `404 Not Found` | The requested resource could not be found. |
-| `429 Too Many Requests` | The client has sent too many requests in a given period. |
-| `500 Internal Server Error` | The server encountered an unexpected error. |
-| `503 Service Unavailable` | The service is temporarily unavailable. |
-
-### `Server`
-
-The `Server` header may reveal the web-server software. For example:
+The attached laboratory material identifies the target as being protected by:
 
 ```text
-server: Apache
+ModSecurity (SpiderLabs)
 ```
 
-Server banners can help defenders identify unnecessary information disclosure and can help authorized testers understand the public technology stack.
+ModSecurity is a widely used open-source Web Application Firewall technology that can be deployed with web servers such as Apache and Nginx or through other hosting and security configurations.
 
-### `Location`
+The result suggests that requests sent to the website may pass through a security layer capable of inspecting and filtering web traffic.
 
-The `Location` header identifies where a client should go after a redirect.
-
-Example:
-
-```text
-location: https://www.networkwalks.com/
-```
-
-Redirects may reveal canonical hostnames, HTTPS enforcement, login paths, or application routing behavior.
-
-### `Set-Cookie`
-
-The `Set-Cookie` header instructs the browser to store a cookie.
-
-Important cookie attributes include:
-
-| Attribute | Purpose |
-|---|---|
-| `Secure` | Sends the cookie only over HTTPS. |
-| `HttpOnly` | Prevents ordinary client-side JavaScript from reading the cookie. |
-| `SameSite` | Helps control cross-site cookie behavior. |
-| `Domain` | Defines which domain can receive the cookie. |
-| `Path` | Defines which URL paths can receive the cookie. |
-
-### `Cache-Control`
-
-The `Cache-Control` header defines caching behavior for browsers, proxies, and other intermediate systems.
-
-Examples include:
-
-```text
-cache-control: no-store
-cache-control: max-age=600
-cache-control: public
-```
-
-### `Content-Type`
-
-The `Content-Type` header identifies the type of content returned by the server.
-
-Example:
-
-```text
-content-type: text/html; charset=UTF-8
-```
-
-### Security Headers
-
-The response may contain security-related headers such as:
-
-- `Strict-Transport-Security`.
-- `Content-Security-Policy`.
-- `X-Content-Type-Options`.
-- `X-Frame-Options`.
-- `Referrer-Policy`.
-- `Permissions-Policy`.
-
-The presence, absence, and configuration of these headers can help indicate the security maturity of a web application.
-
----
-
-## Redirects, Cookies, and Hidden Endpoints
-
-### Redirect Analysis
-
-Use the following command to view redirects:
-
-```bash
-curl -L -I https://networkwalks.com
-```
-
-A redirect chain may show:
-
-- HTTP-to-HTTPS enforcement.
-- A redirect from a non-canonical hostname.
-- A CDN or proxy endpoint.
-- Login or authentication paths.
-- Application routing behavior.
-
-### Cookie Analysis
-
-Look for headers such as:
-
-```text
-set-cookie: session=value; Secure; HttpOnly; SameSite=Lax
-```
-
-Cookies should be reviewed for secure attributes, session identifiers, tracking behavior, and unnecessarily broad domain or path scope.
-
-Do not reuse, modify, or attack session cookies unless this is explicitly authorized in the rules of engagement.
-
-### Publicly Exposed Endpoints
-
-HTTP response headers can expose links to related resources or application APIs. The task material highlights the possibility of a WordPress REST API reference such as:
-
-```text
-/wp-json/
-```
-
-A visible endpoint is not automatically a vulnerability. It should be documented as an observation and tested only when the assessment scope explicitly permits it.
+> **Important:** The presence of ModSecurity does not guarantee that the website is secure. WAF rules may be incomplete, outdated, incorrectly configured, or unable to detect every type of attack.
 
 ---
 
 ## 🔴 Attacker Perspective
 
-From an attacker’s perspective, HTTP headers provide a quick way to fingerprint the web stack and identify how the application is configured.
+From an attacker’s perspective, identifying a WAF provides information about the defensive layer protecting the web application.
 
-During an **authorized security assessment**, the results may be used to:
+During an **authorized security assessment**, the finding may be used to:
 
-- Identify the web-server platform.
-- Determine the HTTP version in use.
-- Observe redirects and canonical hostnames.
-- Identify cookies and session-management attributes.
-- Identify caching behavior and proxy infrastructure.
-- Detect application frameworks or runtime information.
-- Locate publicly referenced endpoints such as `/wp-json/`.
-- Compare exposed technologies with approved vulnerability information.
+- Document the presence of a web-security gateway.
+- Understand that suspicious requests may be inspected or blocked.
+- Interpret blocked responses and challenge pages correctly.
+- Plan safe, non-destructive testing within the rules of engagement.
+- Distinguish application behavior from WAF-generated responses.
+- Record the likely WAF product for the final assessment report.
 
-Headers can reveal useful information without downloading the complete webpage. However, a header observation is not proof that the detected server or application is vulnerable.
+The task material identifies ModSecurity associated with SpiderLabs as the observed WAF technology.
 
-> **Safety boundary:** Do not access hidden endpoints, manipulate cookies, bypass access controls, or exploit detected technologies without explicit authorization.
+> **Safety boundary:** WAF detection does not authorize bypass attempts, payload testing, exploitation, evasion, denial-of-service activity, or attacks against the target.
 
 ---
 
 ## 🔵 Defender Perspective
 
-Defenders should inspect their own HTTP headers to determine whether the web application discloses unnecessary information or lacks important security controls.
+Defenders should use WAF detection against their own websites to confirm whether the expected security layer is visible and operating correctly.
 
 A defensive review should consider:
 
-- Whether the `Server` header exposes unnecessary version information.
-- Whether `X-Powered-By` reveals the application runtime.
-- Whether cookies use `Secure`, `HttpOnly`, and appropriate `SameSite` attributes.
-- Whether HTTPS is enforced correctly.
-- Whether redirects lead only to trusted destinations.
-- Whether cache settings protect sensitive information.
-- Whether security headers are present and correctly configured.
-- Whether public API endpoints expose more information than intended.
+- Whether the WAF is deployed in the correct position.
+- Whether traffic reaches the WAF before reaching the origin server.
+- Whether WAF rules are enabled and regularly updated.
+- Whether blocked requests are logged and monitored.
+- Whether false positives are reviewed without weakening protection unnecessarily.
+- Whether the origin server is protected from direct access.
+- Whether the WAF is supported and maintained.
+- Whether the application has security controls beyond the WAF.
 
 | Finding | Recommended Defensive Action |
 |---|---|
-| Server version disclosed | Minimize unnecessary web-server banner information. |
-| Runtime disclosed through `X-Powered-By` | Remove or reduce the header where appropriate. |
-| Cookie missing `Secure` | Send the cookie only over HTTPS. |
-| Cookie missing `HttpOnly` | Protect sensitive session cookies from client-side script access. |
-| Weak `SameSite` setting | Review cross-site cookie behavior and application requirements. |
-| Missing HSTS | Configure HTTPS enforcement where appropriate. |
-| Missing content-security controls | Review and implement suitable security headers. |
-| Public endpoint exposed unnecessarily | Restrict, authenticate, or remove the endpoint where appropriate. |
+| WAF not detected | Confirm whether the WAF is deployed, reachable, and configured correctly. |
+| WAF detected but origin exposed | Restrict direct origin access and allow approved traffic paths only. |
+| Outdated WAF rules | Update signatures and review current protection policies. |
+| Excessive false positives | Tune rules carefully and monitor changes. |
+| No alerting or logging | Forward WAF events to centralized monitoring and incident-response systems. |
+| WAF used as the only control | Combine WAF protection with secure coding, patching, authentication, and network controls. |
 
-> **Defensive goal:** Return only the information required for normal operation and configure headers, cookies, redirects, and caching securely.
+> **Defensive goal:** Ensure that the WAF is correctly deployed, actively monitored, regularly updated, and supported by secure application and infrastructure practices.
 
 ---
 
 ## Conclusion
 
-The `curl -I` command provides a fast way to inspect HTTP response headers without downloading the complete webpage. For `networkwalks.com`, the output can reveal the response status, server banner, cookies, redirects, caching behavior, security headers, and publicly referenced endpoints.
+The `wafw00f` command provides a quick way to determine whether a website appears to be protected by a Web Application Firewall. In this task, the observed result identifies **ModSecurity (SpiderLabs)** as the likely WAF protecting `networkwalks.com`.
 
-For an authorized security assessment, these observations help build an initial profile of the web application. For defenders, the same inspection shows what information is visible to external users and which headers or cookie settings may require improvement.
+The result is useful for both reconnaissance and defense. An authorized analyst can document the visible security layer, while defenders can verify that the expected WAF is deployed, monitored, updated, and protecting the origin server.
 
-HTTP headers should be treated as evidence about the server’s public behavior, not as automatic proof of a vulnerability. Any further testing must remain within the approved scope.
+WAF detection should always be treated as an indication based on observable behavior. It does not prove that the application is fully secure or that every request will be blocked.
 
 ---
 
 <div align="center">
 
-**Week 2 | Project Module 1 | Task 4**
+**Week 2 | Project Module 1 | Task 5**
 
 ![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
