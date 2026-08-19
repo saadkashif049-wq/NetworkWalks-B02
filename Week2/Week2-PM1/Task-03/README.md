@@ -341,14 +341,4 @@ DNS resolution is a useful initial reconnaissance and defensive inventory step, 
 
 </div>
 
-> **Final note:** Rerun the command and record the live result before submitting a current report.
 
----
-
-## GitHub Push Commands
-
-```bash
-git add README.md task-3-nslookup.txt screenshots/
-git commit -m "docs: add Task 3 nslookup reconnaissance report"
-git push origin main
-```
