@@ -1,4 +1,4 @@
-# Task 5 — Web Application Firewall Detection with `wafw00f`
+# Task 4 — Web Application Firewall Detection with `wafw00f`
 
 ![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
 ![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
@@ -317,7 +317,7 @@ WAF detection should always be treated as an indication based on observable beha
 
 <div align="center">
 
-**Week 2 | Project Module 1 | Task 5**
+**Week 2 | Project Module 1 | Task 4**
 
 ![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
