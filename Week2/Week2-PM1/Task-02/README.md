@@ -1,217 +1,319 @@
-# 🌐 Task 2 — WhatWeb Technology Fingerprinting
+# Task 2 — Web Technology Fingerprinting with `whatweb`
 
-![Tool](https://img.shields.io/badge/Tool-whatweb-orange)
-![Category](https://img.shields.io/badge/Category-Passive%20Recon-blue)
-![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-informational)
-![Legality](https://img.shields.io/badge/Legality-Fully%20Legal-brightgreen)
-![Target%20Risk](https://img.shields.io/badge/Target%20Risk-None%20(Read--Only)-yellow)
-![IP%20Exposure](https://img.shields.io/badge/Your%20IP%20Exposed-No-success)
+![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
+![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
+![Task](https://img.shields.io/badge/Task-02%20%7C%20whatweb-success?style=flat-square )
+![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-557C94?style=flat-square )
+![Purpose](https://img.shields.io/badge/Purpose-Educational%20Only-yellow?style=flat-square )
 
-> 📚 **Lab:** Networkwalks Internship — Week 2, Project Module 1 (Footprinting & Reconnaissance)
-> 🎯 **Target:** `networkwalks.com` (authorized training domain)
-
----
-
-## 📑 Table of Contents
-
-1. [What Is WhatWeb?](#1--what-is-whatweb)
-2. [How It Works — The Mechanism](#2--how-it-works--the-mechanism)
-3. [Command Syntax](#3--command-syntax)
-4. [Step-by-Step: Running the Task](#4--step-by-step-running-the-task)
-5. [Why Multiple Lines of Output Appear](#5--why-multiple-lines-of-output-appear)
-6. [Reading the Output — Field by Field](#6--reading-the-output--field-by-field)
-7. [🔴 Attacker Perspective](#7--attacker-perspective)
-8. [🔵 Defender Perspective](#8--defender-perspective)
-9. [📝 Report Checklist](#9--report-checklist)
+> **Project:** Week 2 — Project Module 1: Footprinting and Reconnaissance
+>
+> **Objective:** Identify the web server, CMS, plugins, frameworks, technologies, and other publicly visible details used by `networkwalks.com`.
+>
+> **Authorization:** Perform reconnaissance only against websites and systems you own or have explicit permission to assess.
 
 ---
 
-## 1. 🧭 What Is WhatWeb?
+## Table of Contents
 
-**WhatWeb** fingerprints the **technology stack** running behind a live website — the web server software, CMS, plugins, frameworks, and more — just by analyzing what the site publicly reveals.
-
-Unlike WHOIS (which looks at domain *registration*), WhatWeb looks at the **actual running website itself**.
+- [What Is `whatweb`?](#what-is-whatweb)
+- [How It Works](#how-it-works)
+- [Command Syntax](#command-syntax)
+- [Step-by-Step: Running the Task](#step-by-step-running-the-task)
+- [Reading the Output](#reading-the-output)
+- [Technology Categories](#technology-categories)
+- [🔴 Attacker Perspective](#-attacker-perspective)
+- [🔵 Defender Perspective](#-defender-perspective)
+- [Conclusion](#conclusion)
 
 ---
 
-## 2. ⚙️ How It Works — The Mechanism
+## What Is `whatweb`?
 
-```
-🖥️ whatweb sends a normal HTTP request
-      ↓ (exactly like a browser would)
-🌐 Target website responds
-      ↓
-🔍 whatweb analyzes:
-      • HTML source code patterns
-      • HTTP response headers
-      • Cookie names
-      • Meta tags
-      • JavaScript library signatures
-      ↓
-📚 Matches against a huge signature database
-      ↓
-✅ Prints identified CMS, plugins, server software, versions
+`whatweb` is a web-technology fingerprinting tool included with Kali Linux. It examines a website and attempts to identify the technologies that are publicly exposed by the target.
+
+Depending on the target and its configuration, `whatweb` may identify:
+
+- Web-server software.
+- Content-management systems.
+- CMS plugins and components.
+- JavaScript frameworks and libraries.
+- Web technologies and HTTP headers.
+- Cookies and security-related information.
+- Server IP addresses.
+- Email addresses or other visible metadata.
+- Technology versions, when they are exposed.
+
+For this task, the target is:
+
+```text
+networkwalks.com
 ```
 
-WhatWeb maintains a database of **thousands of known "signatures"** for CMSs, plugins, and frameworks — similar to how antivirus software matches files against known virus signatures.
+The goal is to create an initial technology profile without attempting to exploit the detected software.
+
+> **Important:** Fingerprinting results are indicators, not absolute proof. A technology may be hidden, modified, proxied, outdated, or incorrectly identified.
 
 ---
 
-## 3. 💻 Command Syntax
+## How It Works
 
-```bash
-whatweb <domain-name>
-```
+When the following command is executed:
 
-**Example used in this lab:**
 ```bash
 whatweb networkwalks.com
 ```
 
-**✅ IP Exposure Check:** Your own IP is **never** revealed — WhatWeb only sends an outgoing request to the target and reports on what the target reveals about itself.
+`whatweb` sends web requests to the target and analyzes the responses. It compares visible response characteristics against fingerprint patterns known as plugins.
+
+### Fingerprinting Flow
+
+```text
+Kali Linux terminal
+        |
+        |  whatweb networkwalks.com
+        v
+Target website
+        |
+        |  Returns HTML, headers, cookies, and other public information
+        v
+WhatWeb fingerprinting plugins analyze the response
+        |
+        v
+Detected technologies and metadata are displayed
+```
+
+The tool may analyze information such as:
+
+1. HTTP response headers.
+2. HTML page content.
+3. Meta tags and generator fields.
+4. Cookies and naming patterns.
+5. JavaScript files and paths.
+6. Common CMS paths.
+7. Server banners and response behavior.
+
+Unlike purely passive information gathering, `whatweb` normally sends requests to the target website. Therefore, it should be used only within an authorized scope.
 
 ---
 
-## 4. 🪜 Step-by-Step: Running the Task
+## Command Syntax
 
-| Step | Action |
+### Basic Syntax
+
+```text
+whatweb [options] target
+```
+
+Required command:
+
+```bash
+whatweb networkwalks.com
+```
+
+### Useful Variations
+
+| Command | Purpose |
 |---|---|
-| 1️⃣ | Open a terminal in Kali Linux |
-| 2️⃣ | Run: `whatweb networkwalks.com` |
-| 3️⃣ | Wait for the output to print |
-| 4️⃣ | 📸 Take a screenshot of the terminal |
-| 5️⃣ | 💾 Save the output to a text file: `whatweb networkwalks.com > task2-whatweb.txt` |
+| `whatweb networkwalks.com` | Perform a standard technology scan. |
+| `whatweb -a 1 networkwalks.com` | Use a low-aggression scan. |
+| `whatweb -a 3 networkwalks.com` | Use a more detailed scan. |
+| `whatweb -v networkwalks.com` | Display verbose output. |
+| `whatweb --log-verbose=whatweb-report.txt networkwalks.com` | Save verbose results to a file. |
+| `whatweb --color=never networkwalks.com` | Disable terminal colors for cleaner saved output. |
+| `whatweb -h` | Display the help menu. |
+
+### Recommended Evidence Command
+
+The following command displays the results and saves a clean copy:
+
+```bash
+whatweb --color=never networkwalks.com | tee task-2-whatweb.txt
+```
 
 ---
 
-## 5. 🧩 Why Multiple Lines of Output Appear
+## Step-by-Step: Running the Task
 
-WhatWeb often shows **3 separate results** for one domain — because it follows redirects:
+### 1. Open the Terminal
 
+Launch a terminal in Kali Linux.
+
+### 2. Confirm That `whatweb` Is Available
+
+```bash
+which whatweb
 ```
-1️⃣ http://networkwalks.com    → [301 Moved Permanently] → redirecting...
-2️⃣ https://networkwalks.com   → [200 OK] → final destination reached
-3️⃣ https://networkwalks.com/  → [200 OK] → same page, trailing slash
+
+### 3. Run the Required Command
+
+```bash
+whatweb networkwalks.com
 ```
 
-📌 The **301 redirect** from `http` → `https` is actually a **good security sign** — the site is forcing secure (encrypted) connections.
+### 4. Save the Output
+
+```bash
+whatweb --color=never networkwalks.com | tee task-2-whatweb.txt
+```
+
+### 5. Capture Evidence
+
+Take a screenshot showing:
+
+- The Kali Linux terminal.
+- The command that was executed.
+- The complete `whatweb` output.
+- The terminal prompt or timestamp, if available.
+
+### 6. Organize the Evidence
+
+```text
+Task-2-whatweb/
+├── README.md
+├── task-2-whatweb.txt
+└── screenshots/
+    └── whatweb-networkwalks.png
+```
 
 ---
 
-## 6. 📋 Reading the Output — Field by Field
+## Reading the Output
 
-### 🖥️ Server Info
-```
-Apache, HTTPServer[Apache]
-```
-➡️ Web server software: **Apache**
+A typical `whatweb` result may contain several technology indicators on one line. The exact output depends on the website, network conditions, scan-aggression level, and information exposed by the server.
 
-### 📍 Network Info
-```
+Example structure:
+
+```text
+networkwalks.com [200 OK]
+HTTPServer[Apache]
 IP[192.232.216.135]
+WordPress
+Plugin[WP Download Manager]
+Email[admin@example.com]
 ```
-➡️ Server's IP address (matches `nslookup` results — consistent)
 
-### 🎯 CMS/Platform Info — Most Important for Security
-```
-MetaGenerator[WordPress 7.0.4, WordPress Download Manager 3.3.58]
-WordPress[7.0.4]
-```
-➡️ **CMS:** WordPress version `7.0.4`
-➡️ **Plugin:** WordPress Download Manager version `3.3.58`
-
-> 🚨 This is the highest-value info for an attacker — exact versions can be checked against vulnerability databases (CVE, WPScan, exploit-db).
-
-### 🎨 Frontend Libraries
-```
-Bootstrap[7.0.4], JQuery[3.7.1], HTML5
-```
-➡️ Frameworks used for design/frontend
-
-### 📧 Contact/Leak Info
-```
-Email[info@networkwalks.com]
-```
-➡️ A public email exposed (found somewhere in the source code)
-
-### 🍪 Cookies
-```
-Cookies[__wpdm_client], HttpOnly[__wpdm_client]
-```
-➡️ Cookie name `__wpdm_client` set (related to WP Download Manager plugin)
-➡️ `HttpOnly` flag present — 🔒 **good security practice** (cookie can't be accessed via JavaScript, reducing XSS risk)
-
-### 📊 Tracking/Analytics
-```
-Google-Tag-Manager
-```
-➡️ Site uses Google Tag Manager for analytics/tracking
-
-### 📄 Page Metadata
-```
-Title[Networkwalks Academy]
-Open-Graph-Protocol[website]
-```
-➡️ Page title + social media preview tags
-
-### 🧱 Uncommon Headers
-```
-UncommonHeaders[permissions-policy,link,upgrade,referrer-policy,x-endurance-cache-level,x-nginx-cache]
-```
-➡️ `x-endurance-cache-level` and `x-nginx-cache` suggest a **caching layer/CDN** is involved (likely tied to HostGator's parent infrastructure)
-
----
-
-## 7. 🔴 Attacker Perspective
-
-| Field Found | How Attacker Uses It |
+| Output Element | Meaning |
 |---|---|
-| `WordPress[7.0.4]` | Searches exploit-db/WPScan for known CVEs in this exact version |
-| `WordPress Download Manager 3.3.58` | 🚨 Most dangerous — plugins are often less secure than core; searches for known plugin exploits |
-| `IP[192.232.216.135]` | Uses for direct port scanning, reverse-IP lookups |
-| `Email[info@networkwalks.com]` | Target for phishing/social engineering |
-| `Bootstrap`, `JQuery` versions | Checks for outdated frontend library vulnerabilities (e.g. XSS) |
+| `200 OK` | The server successfully returned the requested resource. |
+| `HTTPServer[Apache]` | The response appears to identify Apache as the web server. |
+| `IP[192.232.216.135]` | The IP address associated with the observed response. |
+| `WordPress` | The site appears to use the WordPress content-management system. |
+| `Plugin[...]` | A plugin or component may have been identified from public page information. |
+| `Email[...]` | An email address may have been detected in publicly visible content. |
+| Version number | A possible software version exposed by the website. |
 
-> 🧠 **Attacker's mindset:** *"I now know the exact software stack — I don't need to guess, I can directly target known weaknesses."*
+> **Interpretation rule:** A detected technology should be verified before making a security conclusion. Fingerprinting tools can produce false positives or identify a component that is no longer active.
 
 ---
 
-## 8. 🔵 Defender Perspective
+## Technology Categories
 
-This is the exact same tool defenders run on their **own** sites for **self-recon / attack surface assessment**:
+### Web Server
 
-| Action | Why |
+The web-server result may identify software such as Apache, Nginx, Microsoft IIS, or another HTTP server. Server banners can help defenders understand what information is publicly exposed.
+
+### Content-Management System
+
+`whatweb` may identify platforms such as WordPress, Joomla, Drupal, or other CMS applications. CMS detection often comes from HTML markers, generator tags, known paths, scripts, or cookies.
+
+### Plugins and Components
+
+Publicly visible plugin names and versions can reveal additional components installed on a CMS. The attached task material identifies WordPress and a WP Download Manager component in the example observations.
+
+### Frameworks and Libraries
+
+The tool may detect client-side libraries, JavaScript frameworks, analytics services, CSS frameworks, or other application components.
+
+### IP Address
+
+The output may show the IP address associated with the website, such as:
+
+```text
+192.232.216.135
+```
+
+The result should be treated as a time-specific observation because websites may use CDNs, reverse proxies, multiple addresses, or shared hosting.
+
+### Email Addresses and Metadata
+
+Email addresses or other metadata may be extracted from visible page content. This information should be handled responsibly and must not be used for spam, phishing, social engineering, or unauthorized contact.
+
+---
+
+## 🔴 Attacker Perspective
+
+From an attacker’s perspective, `whatweb` is useful for building a technology profile before attempting any further activity. Detected software and versions may be compared with publicly known vulnerability information during an authorized assessment.
+
+A permitted assessment may use the results to:
+
+- Identify the apparent web-server platform.
+- Identify the CMS and installed components.
+- Record software versions exposed by the target.
+- Compare identified versions with approved vulnerability databases.
+- Detect potentially interesting paths, plugins, or public metadata.
+- Plan only the next checks allowed by the rules of engagement.
+
+The task material highlights that a WordPress installation, plugin information, server details, IP address, or email address may be exposed through fingerprinting.
+
+> **Safety boundary:** Detecting a technology or version does not prove that the system is vulnerable. Do not exploit, brute-force, scan, or attack any detected component without explicit authorization.
+
+---
+
+## 🔵 Defender Perspective
+
+Defenders should run technology-fingerprinting checks against their own websites to understand what information is publicly visible to external observers.
+
+A defensive review should consider:
+
+- Whether the web-server banner should be hidden or minimized.
+- Whether CMS and plugin versions are publicly exposed.
+- Whether unused plugins, themes, frameworks, or libraries remain installed.
+- Whether email addresses or sensitive metadata appear in page content.
+- Whether old JavaScript libraries contain known security weaknesses.
+- Whether HTTP security headers are configured correctly.
+- Whether the detected software is patched and supported.
+
+| Finding | Recommended Defensive Action |
 |---|---|
-| ✅ Check version leakage | Decide whether to hide WordPress version via security plugins |
-| ✅ Identify outdated software | Patch/update before an attacker exploits it |
-| ✅ Reduce unnecessary exposure | Hide sensitive info like exposed emails if not needed |
-| ✅ Audit plugin inventory | Remove unused/outdated plugins to shrink attack surface |
+| Web-server version exposed | Minimize unnecessary server-banner information. |
+| Outdated CMS or plugin | Patch, upgrade, replace, or remove the component. |
+| Unused plugin or theme | Remove it rather than leaving it disabled. |
+| Public email address | Use appropriate privacy and anti-abuse controls. |
+| Sensitive metadata exposed | Review page source, headers, comments, and public files. |
+| Outdated JavaScript library | Upgrade the library and remove unused dependencies. |
+| Weak HTTP security configuration | Review security headers, cookies, TLS, and redirect behavior. |
 
-> 🧠 **Defender's mindset:** *"If I can find this without logging in, so can an attacker — let's fix it first."*
+> **Defensive goal:** Reduce unnecessary technology disclosure while keeping the website patched, functional, and maintainable.
 
 ---
 
-## 9. 📝 Report Checklist
+## Conclusion
 
-- [ ] Command used documented: `whatweb networkwalks.com`
-- [ ] Screenshot saved
-- [ ] Output saved to `.txt` file
-- [ ] Web server software identified (Apache)
-- [ ] CMS + version identified (WordPress 7.0.4)
-- [ ] Plugin + version identified (WP Download Manager 3.3.58)
-- [ ] Frontend frameworks noted (Bootstrap, JQuery)
-- [ ] Exposed email noted
-- [ ] HTTPS redirect confirmed (good practice)
-- [ ] Cookie security flags noted (HttpOnly)
+The `whatweb` command provides a fast way to identify technologies that may be publicly exposed by a website. It can reveal the apparent web server, CMS, plugins, frameworks, IP address, version information, and other metadata.
+
+For an authorized security assessment, these findings help create an initial technology inventory. For defenders, the same results show what an external observer can learn and which components may require stronger configuration, patching, or information-disclosure controls.
+
+Fingerprinting results should always be validated before being treated as confirmed technical facts. The presence of a detected technology does not automatically mean that it is vulnerable.
 
 ---
 
 <div align="center">
 
-**📚 Task 2 of 6 — Footprinting & Reconnaissance Lab**
-**Previous:** Task 1 — WHOIS | **Next:** Task 3 — nslookup
+**Week 2 | Project Module 1 | Task 2**
 
-![Educational](https://img.shields.io/badge/Purpose-Educational%20Only-yellow)
-![Authorized](https://img.shields.io/badge/Authorized%20Target-networkwalks.com-brightgreen)
+![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
 </div>
+
+> **Final note:** Run the command, save the complete output, capture the screenshot, and record the current result before submitting the task.
+
+---
+
+## GitHub Push Commands
+
+```bash
+git add README.md task-2-whatweb.txt screenshots/
+git commit -m "docs: add Task 2 whatweb reconnaissance report"
+git push origin main
+```
