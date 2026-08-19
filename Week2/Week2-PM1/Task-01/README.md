@@ -1,193 +1,292 @@
-# 🔍 Task 1 — WHOIS Domain Reconnaissance
+# Task 1 — Domain Registration Reconnaissance with `whois`
 
-![Tool](https://img.shields.io/badge/Tool-whois-orange)
-![Category](https://img.shields.io/badge/Category-Passive%20Recon-blue)
-![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-informational)
-![Legality](https://img.shields.io/badge/Legality-Fully%20Legal-brightgreen)
-![Target%20Risk](https://img.shields.io/badge/Target%20Risk-None%20(Read--Only)-yellow)
-![IP%20Exposure](https://img.shields.io/badge/Your%20IP%20Exposed-No-success)
+![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
+![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
+![Task](https://img.shields.io/badge/Task-01%20%7C%20whois-success?style=flat-square )
+![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-557C94?style=flat-square )
+![Purpose](https://img.shields.io/badge/Purpose-Educational%20Only-yellow?style=flat-square )
 
-> 📚 **Lab:** Networkwalks Internship — Week 2, Project Module 1 (Footprinting & Reconnaissance)
-> 🎯 **Target:** `networkwalks.com` (authorized training domain)
-
----
-
-## 📑 Table of Contents
-
-1. [What Is WHOIS?](#1--what-is-whois)
-2. [How It Works — The Mechanism](#2--how-it-works--the-mechanism)
-3. [Command Syntax](#3--command-syntax)
-4. [Step-by-Step: Running the Task](#4--step-by-step-running-the-task)
-5. [Reading the Output — Line by Line](#5--reading-the-output--line-by-line)
-6. [Why Two Blocks of Output Appear](#6--why-two-blocks-of-output-appear)
-7. [WHOIS Privacy Protection](#7--whois-privacy-protection)
-8. [🔴 Attacker Perspective](#8--attacker-perspective)
-9. [🔵 Defender Perspective](#9--defender-perspective)
-10. [📝 Report Checklist](#10--report-checklist)
+> **Project:** Week 2 — Project Module 1: Footprinting and Reconnaissance
+>
+> **Objective:** Query the public domain-registration record for `networkwalks.com` and identify available registration, registrar, expiry, and name-server information.
+>
+> **Authorization:** Perform reconnaissance only against domains and systems you own or have explicit permission to assess.
 
 ---
 
-## 1. 🧭 What Is WHOIS?
+## Table of Contents
 
-**WHOIS** (pronounced *"who is"*) is a query protocol used to look up the **public registration record** of a domain name. It answers: *"Who registered this domain, and when?"*
-
-Every domain must be registered through an accredited **registrar** (GoDaddy, Namecheap, etc.), and that registration info is stored in a **publicly queryable database**. The `whois` command sends a request to that database and prints the result.
-
----
-
-## 2. ⚙️ How It Works — The Mechanism
-
-```
-🖥️ You (whois command)
-      ↓
-🏛️ Registry (e.g. Verisign for .com domains)
-      ↓ "who's the registrar for this domain?"
-🏢 Registrar (e.g. GoDaddy)
-      ↓
-📋 Full registration record returned
-```
-
-1. `whois` first contacts the **domain registry** — the organization managing an entire TLD (e.g. `.com` is run by Verisign)
-2. The registry replies with basic info and points to the **registrar** handling this specific domain
-3. `whois` then queries the **registrar's own WHOIS server** for the full, detailed record
-4. This is why output sometimes shows **two blocks** — a short one from the registry, a fuller one from the registrar
+- [What Is `whois`?](#what-is-whois)
+- [How It Works](#how-it-works)
+- [Command Syntax](#command-syntax)
+- [Step-by-Step: Running the Task](#step-by-step-running-the-task)
+- [Reading the Output](#reading-the-output)
+- [Information That Can Be Identified](#information-that-can-be-identified)
+- [🔴 Attacker Perspective](#-attacker-perspective)
+- [🔵 Defender Perspective](#-defender-perspective)
+- [Conclusion](#conclusion)
 
 ---
 
-## 3. 💻 Command Syntax
+## What Is `whois`?
 
-```bash
-whois <domain-name>
+`whois` is a command-line utility used to query publicly available registration information for internet domains and IP address ranges.
+
+A WHOIS query may reveal information such as:
+
+- The domain registrar.
+- Domain creation and registration dates.
+- Domain expiry date.
+- Updated date.
+- Registration status.
+- Authoritative name servers.
+- Registrar abuse contacts.
+- Registrant details, when privacy protection is not enabled.
+
+For this task, the target domain is:
+
+```text
+networkwalks.com
 ```
 
-**Example used in this lab:**
+The purpose of the lookup is to understand what registration and ownership-related information is publicly available before conducting any further authorized assessment.
+
+> **Important:** WHOIS data may be partially hidden or redacted because of privacy services, regional regulations, registrar policies, or changes in WHOIS/RDAP availability.
+
+---
+
+## How It Works
+
+When the following command is executed:
+
 ```bash
 whois networkwalks.com
 ```
 
-**✅ IP Exposure Check:** Your own IP is **never** revealed by this command — it only queries a public registry/registrar database, not the target server itself.
+The `whois` client sends a query to an appropriate WHOIS server. The response contains registration information associated with the domain, if that information is publicly available.
+
+### Query Flow
+
+```text
+Kali Linux terminal
+        |
+        |  whois networkwalks.com
+        v
+WHOIS or registration service
+        |
+        |  Searches the domain registration database
+        v
+Registration record returned
+        |
+        v
+whois displays the available information
+```
+
+The command does not exploit the website or access private systems. It retrieves registration information that has been made available through a public registration service.
 
 ---
 
-## 4. 🪜 Step-by-Step: Running the Task
+## Command Syntax
 
-| Step | Action |
+### Basic Syntax
+
+```text
+whois [options] domain-or-IP
+```
+
+Required command:
+
+```bash
+whois networkwalks.com
+```
+
+### Useful Variations
+
+| Command | Purpose |
 |---|---|
-| 1️⃣ | Open a terminal in Kali Linux |
-| 2️⃣ | Run: `whois networkwalks.com` |
-| 3️⃣ | Wait for the output to print (usually instant) |
-| 4️⃣ | 📸 Take a screenshot of the terminal |
-| 5️⃣ | 💾 Save the output to a text file: `whois networkwalks.com > task1-whois.txt` |
+| `whois networkwalks.com` | Query the registration record for the domain. |
+| `whois 192.232.216.135` | Query registration information for an IP address. |
+| `whois -H networkwalks.com` | Hide lengthy legal disclaimers where supported. |
+| `whois --help` | Display available command options. |
+
+The exact output and available options may vary depending on the installed WHOIS client and the registration service responding to the query.
 
 ---
 
-## 5. 📋 Reading the Output — Line by Line
+## Step-by-Step: Running the Task
+
+### 1. Open the Terminal
+
+Launch a terminal in Kali Linux.
+
+### 2. Confirm That `whois` Is Available
+
+```bash
+which whois
+```
+
+If the command is not available, verify that the WHOIS utility is installed and that the system's package repositories are configured correctly.
+
+### 3. Run the Required Command
+
+```bash
+whois networkwalks.com
+```
+
+### 4. Save the Output to a Text File
+
+Use `tee` to display the result and save a copy at the same time:
+
+```bash
+whois networkwalks.com | tee task-1-whois.txt
+```
+
+This creates the following evidence file:
+
+```text
+task-1-whois.txt
+```
+
+### 5. Capture a Screenshot
+
+Take a screenshot showing:
+
+- The Kali Linux terminal.
+- The command that was executed.
+- The complete WHOIS output.
+- The terminal prompt or timestamp, if available.
+
+### 6. Organize the Evidence
+
+```text
+Task-1-whois/
+├── README.md
+├── task-1-whois.txt
+└── screenshots/
+    └── whois-networkwalks.png
+```
+
+---
+
+## Reading the Output
+
+The output may contain different fields depending on the registrar and the type of registration service used. Common fields include the following:
 
 | Field | Meaning |
 |---|---|
-| `Domain Name` | The domain being queried |
-| `Registry Domain ID` | Unique internal ID the registry (Verisign) uses to track this domain |
-| `Registrar` | Company the domain was purchased through (e.g. **GoDaddy**) |
-| `Registrar WHOIS Server` | Which server holds the full/detailed record |
-| `Creation Date` | When the domain was first registered |
-| `Updated Date` | Last time the record was modified |
-| `Registry Expiry Date` | When the registration needs renewal |
-| `Registrar Abuse Contact` | Email/phone to report abuse — belongs to the **registrar**, not the site owner |
-| `Domain Status` (×4) | Security locks protecting the domain from unauthorized delete/renew/transfer/update — 🔒 **normal & good practice** |
-| `Name Server` (×2 or more) | 🎯 **Most valuable line for recon** — reveals the **hosting provider** (e.g. HostGator) |
-| `DNSSEC` | Whether DNS records are cryptographically signed (`signed`/`unsigned`) |
-| `Registrant Name/Org/Address` | Owner's details — **often hidden** behind privacy protection |
+| `Domain Name` | The domain being queried. |
+| `Registrar` | The company responsible for registering or managing the domain. |
+| `Creation Date` | The date on which the domain was originally registered. |
+| `Updated Date` | The most recent date on which the registration record was changed. |
+| `Registry Expiry Date` | The date on which the registration is scheduled to expire. |
+| `Name Server` | An authoritative DNS server responsible for the domain. |
+| `Domain Status` | The current registration status and transfer-related restrictions. |
+| `Registrant Organization` | The registered organization, if publicly disclosed. |
+| `Registrant Country` | The country associated with the registrant, if available. |
+| `Registrar Abuse Contact Email` | An abuse-reporting contact provided by the registrar. |
+| `DNSSEC` | Information about whether DNS Security Extensions are enabled. |
 
-### 🎯 Key finding in this lab
-```
-Name Server: NS6135.HOSTGATOR.COM
-Name Server: NS6136.HOSTGATOR.COM
-```
-➡️ Even though **GoDaddy** is the registrar (where the domain was bought), these name servers reveal the site is actually **hosted on HostGator**.
+### Privacy-Redacted Information
 
-> 💡 **Remember:** Registrar ≠ Host
-> - **Registrar** = where you bought the domain name
-> - **Host** = where the actual website files/server live
+Some records may contain text such as:
+
+```text
+REDACTED FOR PRIVACY
+```
+
+This means that the registrar or privacy-protection provider has intentionally hidden personal registration details. Redaction does not necessarily mean that the domain has no owner or that the registration is invalid.
+
+### Name Servers
+
+Name-server entries identify the DNS infrastructure responsible for answering queries for the domain. For example, name servers may reveal the DNS provider or hosting company used by the domain.
+
+A separate DNS query can be performed with:
+
+```bash
+nslookup -type=NS networkwalks.com
+```
 
 ---
 
-## 6. 🧩 Why Two Blocks of Output Appear
+## Information That Can Be Identified
 
-Your real output likely showed **two similar-looking blocks**:
+A WHOIS lookup can help an authorized analyst build an initial administrative profile of a domain.
 
-1. **First block** — from the **Registry** (Verisign) — a "thin" response, mostly pointing to the registrar
-2. **Second block** — from the **Registrar's own server** (`whois.godaddy.com`) — the "thick" response with full details, including registrant contact info
-
-This happens because `whois` automatically re-queries the registrar after the registry tells it where to look.
-
----
-
-## 7. 🕵️ WHOIS Privacy Protection
-
-Most domain owners today use **WHOIS privacy protection** — a free service (often from GoDaddy) that hides real personal info:
-
-```
-Registrant Name: Registration Private
-Registrant Organization: Domains By Proxy, LLC
-Registrant Email: https://www.godaddy.com/whois/results.aspx?...
-```
-
-📌 Instead of the real owner's name/address/email, you see the **proxy service's info**, and any contact happens through a masked web form.
-
-> ℹ️ You'll also sometimes see a notice like:
-> ```
-> **NOTICE** This WHOIS server is being retired. Please use our RDAP service instead.
-> ```
-> This just means the registrar is moving to **RDAP** (Registration Data Access Protocol) — the modern JSON-based replacement for WHOIS.
+| Category | Possible Observation | Security Relevance |
+|---|---|---|
+| Registrar | The company managing the domain registration | Identifies the registration provider and abuse channel |
+| Creation date | The approximate age of the domain | Helps establish domain history and credibility |
+| Expiry date | When the registration is due for renewal | Useful for administrative monitoring and defensive ownership checks |
+| Name servers | The DNS providers responsible for the domain | May reveal hosting or DNS infrastructure |
+| Status codes | Transfer and registration restrictions | Indicates the current administrative state |
+| Contact details | Public administrative or abuse contacts | Provides a route for reporting suspicious activity |
+| Privacy protection | Whether registrant details are redacted | Shows how much ownership information is publicly visible |
 
 ---
 
-## 8. 🔴 Attacker Perspective
+## 🔴 Attacker Perspective
 
-**How an attacker uses this output:**
+From an attacker’s perspective, WHOIS is an early reconnaissance tool because it can reveal administrative and infrastructure information without directly attacking the target website.
 
-| Info Gained | How It's Used |
+During an **authorized security assessment**, the information may be used to:
+
+- Identify the registrar managing the domain.
+- Identify authoritative name servers and possible DNS providers.
+- Understand the approximate age and registration history of the domain.
+- Find publicly visible administrative or abuse contacts.
+- Identify registration patterns shared with other approved assets.
+- Understand which organization or provider may be responsible for the infrastructure.
+
+The task material notes that the domain’s name servers can reveal its hosting or DNS provider. Registration dates and public contacts may also provide useful context during an authorized assessment.
+
+> **Safety boundary:** Public registration information must not be used for harassment, social engineering, credential attacks, or unauthorized access. Any follow-up testing must remain within the approved scope and rules of engagement.
+
+---
+
+## 🔵 Defender Perspective
+
+Defenders should perform WHOIS and registration-record reviews against their own domains to determine what administrative information is publicly visible.
+
+A defensive review should consider:
+
+- Whether the domain is registered with the intended registrar.
+- Whether the registration expiry date is monitored.
+- Whether privacy protection is required for personal or sensitive details.
+- Whether public contact information is accurate and appropriate.
+- Whether the listed name servers belong to approved DNS providers.
+- Whether old or unauthorized name servers remain associated with the domain.
+- Whether domain-locking and transfer protections are enabled.
+
+| Finding | Recommended Defensive Action |
 |---|---|
-| 🏢 Hosting provider (via NS records) | Narrows down IP ranges to scan; identifies the hosting platform for potential social engineering |
-| 📅 Registration/expiry dates | Can help plan domain-related social engineering attempts |
-| 📧 Registrar abuse contact | Understanding communication channels around the domain |
-| 🔒 Domain status locks | Confirms whether the domain has anti-hijacking protections |
+| Unexpected registrar | Confirm ownership and investigate unauthorized registrar changes. |
+| Approaching expiry date | Enable renewal monitoring and confirm payment or renewal contacts. |
+| Public personal information | Enable registrar privacy protection where appropriate. |
+| Unknown name server | Verify the DNS provider and remove unauthorized delegation. |
+| Missing transfer protection | Enable domain locking and multi-factor authentication. |
+| Unmonitored registrar account | Configure account alerts and review administrative access regularly. |
 
-> ⚠️ None of this is an "attack" — it's purely **passive, publicly available information**, which is exactly why footprinting is powerful and hard to detect.
-
----
-
-## 9. 🔵 Defender Perspective
-
-**Why organizations run WHOIS on themselves:**
-
-- ✅ Confirm what's **publicly exposed** about their domain
-- ✅ Verify **privacy protection** is active (if desired)
-- ✅ Confirm **security locks** (transfer/delete-prohibited) are enabled
-- ✅ Track domain **expiry dates** to avoid accidental lapse (a common attack vector — expired domains can be re-registered by attackers!)
+> **Defensive goal:** Keep domain ownership, renewal, DNS delegation, and registrar access under continuous administrative control.
 
 ---
 
-## 10. 📝 Report Checklist
+## Conclusion
 
-- [ ] Command used documented: `whois networkwalks.com`
-- [ ] Screenshot saved
-- [ ] Output saved to `.txt` file
-- [ ] Registrar identified (GoDaddy)
-- [ ] Hosting provider identified via name servers (HostGator)
-- [ ] Registration/expiry dates noted
-- [ ] Privacy protection status noted (Domains By Proxy)
-- [ ] DNSSEC status noted (unsigned)
-- [ ] Domain status locks noted
+The `whois` command provides an efficient first look at the public registration information associated with a domain. For `networkwalks.com`, the lookup can reveal registration details, registrar information, important dates, name servers, status values, and any publicly available contacts.
+
+WHOIS information is valuable for both reconnaissance and defense. An authorized analyst can use it to understand the administrative ownership and DNS relationships of a domain, while defenders can use the same information to identify unnecessary exposure, prevent unauthorized changes, and maintain control of domain registration assets.
+
+Always treat the returned information as publicly available administrative data and ensure that all follow-up activity remains authorized.
 
 ---
 
 <div align="center">
 
-**📚 Task 1 of 6 — Footprinting & Reconnaissance Lab**
-**Next:** Task 2 — WhatWeb (Technology Fingerprinting)
+**Week 2 | Project Module 1 | Task 1**
 
-![Educational](https://img.shields.io/badge/Purpose-Educational%20Only-yellow)
-![Authorized](https://img.shields.io/badge/Authorized%20Target-networkwalks.com-brightgreen)
+![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
 </div>
+
+
+
