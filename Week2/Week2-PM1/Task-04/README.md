@@ -1,14 +1,14 @@
-# Task 2 — Web Technology Fingerprinting with `whatweb`
+# Task 4 — HTTP Header Analysis with `curl`
 
 ![Week](https://img.shields.io/badge/Week-02-blue?style=flat-square )
 ![Module](https://img.shields.io/badge/Module-PM1%20%7C%20Footprinting-orange?style=flat-square )
-![Task](https://img.shields.io/badge/Task-02%20%7C%20whatweb-success?style=flat-square )
+![Task](https://img.shields.io/badge/Task-04%20%7C%20curl-success?style=flat-square )
 ![Platform](https://img.shields.io/badge/Platform-Kali%20Linux-557C94?style=flat-square )
 ![Purpose](https://img.shields.io/badge/Purpose-Educational%20Only-yellow?style=flat-square )
 
 > **Project:** Week 2 — Project Module 1: Footprinting and Reconnaissance
 >
-> **Objective:** Identify the web server, CMS, plugins, frameworks, technologies, and other publicly visible details used by `networkwalks.com`.
+> **Objective:** Read the HTTP response headers of `networkwalks.com` to identify the server response, status code, cookies, redirects, caching information, and publicly exposed technologies.
 >
 > **Authorization:** Perform reconnaissance only against websites and systems you own or have explicit permission to assess.
 
@@ -16,84 +16,72 @@
 
 ## Table of Contents
 
-- [What Is `whatweb`?](#what-is-whatweb)
+- [What Is `curl`?](#what-is-curl)
 - [How It Works](#how-it-works)
 - [Command Syntax](#command-syntax)
 - [Step-by-Step: Running the Task](#step-by-step-running-the-task)
 - [Reading the Output](#reading-the-output)
-- [Technology Categories](#technology-categories)
+- [Important HTTP Headers](#important-http-headers )
+- [Redirects, Cookies, and Hidden Endpoints](#redirects-cookies-and-hidden-endpoints)
 - [🔴 Attacker Perspective](#-attacker-perspective)
 - [🔵 Defender Perspective](#-defender-perspective)
 - [Conclusion](#conclusion)
 
 ---
 
-## What Is `whatweb`?
+## What Is `curl`?
 
-`whatweb` is a web-technology fingerprinting tool included with Kali Linux. It examines a website and attempts to identify the technologies that are publicly exposed by the target.
+`curl` is a command-line tool used to transfer data to and from servers using network protocols such as HTTP and HTTPS.
 
-Depending on the target and its configuration, `whatweb` may identify:
+For this task, the `-I` option is used to request only the HTTP response headers instead of downloading the complete webpage.
 
-- Web-server software.
-- Content-management systems.
-- CMS plugins and components.
-- JavaScript frameworks and libraries.
-- Web technologies and HTTP headers.
-- Cookies and security-related information.
-- Server IP addresses.
-- Email addresses or other visible metadata.
-- Technology versions, when they are exposed.
+The required command is:
 
-For this task, the target is:
-
-```text
-networkwalks.com
+```bash
+curl -I https://networkwalks.com
 ```
 
-The goal is to create an initial technology profile without attempting to exploit the detected software.
+HTTP headers can reveal useful information about how a web server handles requests and responses, including:
 
-> **Important:** Fingerprinting results are indicators, not absolute proof. A technology may be hidden, modified, proxied, outdated, or incorrectly identified.
+- HTTP status codes.
+- Web-server banners.
+- Redirect locations.
+- Cookies.
+- Cache behavior.
+- Content types.
+- Security headers.
+- Proxy and CDN information.
+- Publicly visible technology indicators.
+
+> **Important:** Header information is useful for fingerprinting, but a single response does not always reveal the complete web stack.
 
 ---
 
 ## How It Works
 
-When the following command is executed:
+When the command is executed, `curl` establishes an HTTPS connection to the target and sends a request asking for the response headers.
 
-```bash
-whatweb networkwalks.com
-```
-
-`whatweb` sends web requests to the target and analyzes the responses. It compares visible response characteristics against fingerprint patterns known as plugins.
-
-### Fingerprinting Flow
+### Request Flow
 
 ```text
 Kali Linux terminal
         |
-        |  whatweb networkwalks.com
+        |  curl -I https://networkwalks.com
         v
-Target website
+HTTPS connection to the target
         |
-        |  Returns HTML, headers, cookies, and other public information
+        |  Sends a HEAD request
         v
-WhatWeb fingerprinting plugins analyze the response
+Web server processes the request
         |
+        |  Returns HTTP response headers
         v
-Detected technologies and metadata are displayed
+curl displays the headers in the terminal
 ```
 
-The tool may analyze information such as:
+The `-I` option requests the headers without retrieving the complete response body. This makes it useful for quickly observing the server's response behavior.
 
-1. HTTP response headers.
-2. HTML page content.
-3. Meta tags and generator fields.
-4. Cookies and naming patterns.
-5. JavaScript files and paths.
-6. Common CMS paths.
-7. Server banners and response behavior.
-
-Unlike purely passive information gathering, `whatweb` normally sends requests to the target website. Therefore, it should be used only within an authorized scope.
+The command may reveal information from the web server, reverse proxy, CDN, caching system, application framework, or security middleware.
 
 ---
 
@@ -102,33 +90,39 @@ Unlike purely passive information gathering, `whatweb` normally sends requests t
 ### Basic Syntax
 
 ```text
-whatweb [options] target
+curl [options] URL
 ```
 
 Required command:
 
 ```bash
-whatweb networkwalks.com
+curl -I https://networkwalks.com
 ```
 
 ### Useful Variations
 
 | Command | Purpose |
 |---|---|
-| `whatweb networkwalks.com` | Perform a standard technology scan. |
-| `whatweb -a 1 networkwalks.com` | Use a low-aggression scan. |
-| `whatweb -a 3 networkwalks.com` | Use a more detailed scan. |
-| `whatweb -v networkwalks.com` | Display verbose output. |
-| `whatweb --log-verbose=whatweb-report.txt networkwalks.com` | Save verbose results to a file. |
-| `whatweb --color=never networkwalks.com` | Disable terminal colors for cleaner saved output. |
-| `whatweb -h` | Display the help menu. |
+| `curl -I https://networkwalks.com` | Request HTTP response headers only. |
+| `curl -i https://networkwalks.com` | Display headers together with the response body. |
+| `curl -L -I https://networkwalks.com` | Follow redirects and display headers from the redirect chain. |
+| `curl -v -I https://networkwalks.com` | Display detailed connection and request information. |
+| `curl -sS -I https://networkwalks.com` | Run quietly while still showing errors. |
+| `curl -k -I https://networkwalks.com` | Ignore certificate verification errors; use only in an authorized lab. |
+| `curl -A "Mozilla/5.0" -I https://networkwalks.com` | Send a custom User-Agent header. |
 
 ### Recommended Evidence Command
 
-The following command displays the results and saves a clean copy:
+Display the headers and save them to a file:
 
 ```bash
-whatweb --color=never networkwalks.com | tee task-2-whatweb.txt
+curl -I https://networkwalks.com | tee task-4-curl-headers.txt
+```
+
+To follow redirects and save the complete header chain:
+
+```bash
+curl -L -I https://networkwalks.com | tee task-4-curl-redirects.txt
 ```
 
 ---
@@ -139,171 +133,279 @@ whatweb --color=never networkwalks.com | tee task-2-whatweb.txt
 
 Launch a terminal in Kali Linux.
 
-### 2. Confirm That `whatweb` Is Available
+### 2. Confirm That `curl` Is Available
 
 ```bash
-which whatweb
+which curl
 ```
 
 ### 3. Run the Required Command
 
 ```bash
-whatweb networkwalks.com
+curl -I https://networkwalks.com
 ```
 
 ### 4. Save the Output
 
 ```bash
-whatweb --color=never networkwalks.com | tee task-2-whatweb.txt
+curl -I https://networkwalks.com | tee task-4-curl-headers.txt
 ```
 
-### 5. Capture Evidence
+### 5. Check for Redirects
+
+```bash
+curl -L -I https://networkwalks.com
+```
+
+The `-L` option follows redirects and displays the final response. This can help identify whether the site redirects between HTTP and HTTPS, between domains, or between different paths.
+
+### 6. Capture Evidence
 
 Take a screenshot showing:
 
 - The Kali Linux terminal.
 - The command that was executed.
-- The complete `whatweb` output.
+- The complete HTTP header output.
 - The terminal prompt or timestamp, if available.
 
-### 6. Organize the Evidence
+### 7. Organize the Evidence
 
 ```text
-Task-2-whatweb/
+Task-4-curl/
 ├── README.md
-├── task-2-whatweb.txt
-└── screenshots/
-    └── whatweb-networkwalks.png
+├── I-Curl.txt
+└── image.png
 ```
 
 ---
 
 ## Reading the Output
 
-A typical `whatweb` result may contain several technology indicators on one line. The exact output depends on the website, network conditions, scan-aggression level, and information exposed by the server.
-
-Example structure:
+A typical response may look similar to this:
 
 ```text
-networkwalks.com [200 OK]
-HTTPServer[Apache]
-IP[192.232.216.135]
-WordPress
-Plugin[WP Download Manager]
-Email[admin@example.com]
+HTTP/2 200
+server: Apache
+content-type: text/html; charset=UTF-8
+cache-control: max-age=600
+set-cookie: example=value; Secure; HttpOnly
+x-powered-by: PHP
+link: <https://networkwalks.com/wp-json/>; rel="https://api.w.org/"
 ```
 
-| Output Element | Meaning |
-|---|---|
-| `200 OK` | The server successfully returned the requested resource. |
-| `HTTPServer[Apache]` | The response appears to identify Apache as the web server. |
-| `IP[192.232.216.135]` | The IP address associated with the observed response. |
-| `WordPress` | The site appears to use the WordPress content-management system. |
-| `Plugin[...]` | A plugin or component may have been identified from public page information. |
-| `Email[...]` | An email address may have been detected in publicly visible content. |
-| Version number | A possible software version exposed by the website. |
+The exact response depends on the current website configuration, web server, proxy, CDN, and application state.
 
-> **Interpretation rule:** A detected technology should be verified before making a security conclusion. Fingerprinting tools can produce false positives or identify a component that is no longer active.
+| Header or Output | Meaning |
+|---|---|
+| `HTTP/2 200` | The request succeeded and the server returned a successful response. |
+| `server: Apache` | The response identifies Apache as the web server. |
+| `content-type` | Indicates the type and character encoding of the returned content. |
+| `cache-control` | Defines how browsers and intermediate systems should cache the response. |
+| `set-cookie` | Instructs the client to store a cookie. |
+| `location` | Identifies the destination of a redirect. |
+| `x-powered-by` | May disclose the application runtime or framework. |
+| `link` | May expose related resources, API endpoints, or application metadata. |
 
 ---
 
-## Technology Categories
+## Important HTTP Headers
 
-### Web Server
+### HTTP Status Code
 
-The web-server result may identify software such as Apache, Nginx, Microsoft IIS, or another HTTP server. Server banners can help defenders understand what information is publicly exposed.
+The first line contains the HTTP version and status code.
 
-### Content-Management System
+| Status Code | General Meaning |
+|---|---|
+| `200 OK` | The request succeeded. |
+| `301 Moved Permanently` | The resource has permanently moved to another location. |
+| `302 Found` | The server is temporarily redirecting the request. |
+| `403 Forbidden` | The server understood the request but refuses access. |
+| `404 Not Found` | The requested resource could not be found. |
+| `429 Too Many Requests` | The client has sent too many requests in a given period. |
+| `500 Internal Server Error` | The server encountered an unexpected error. |
+| `503 Service Unavailable` | The service is temporarily unavailable. |
 
-`whatweb` may identify platforms such as WordPress, Joomla, Drupal, or other CMS applications. CMS detection often comes from HTML markers, generator tags, known paths, scripts, or cookies.
+### `Server`
 
-### Plugins and Components
-
-Publicly visible plugin names and versions can reveal additional components installed on a CMS. The attached task material identifies WordPress and a WP Download Manager component in the example observations.
-
-### Frameworks and Libraries
-
-The tool may detect client-side libraries, JavaScript frameworks, analytics services, CSS frameworks, or other application components.
-
-### IP Address
-
-The output may show the IP address associated with the website, such as:
+The `Server` header may reveal the web-server software. For example:
 
 ```text
-192.232.216.135
+server: Apache
 ```
 
-The result should be treated as a time-specific observation because websites may use CDNs, reverse proxies, multiple addresses, or shared hosting.
+Server banners can help defenders identify unnecessary information disclosure and can help authorized testers understand the public technology stack.
 
-### Email Addresses and Metadata
+### `Location`
 
-Email addresses or other metadata may be extracted from visible page content. This information should be handled responsibly and must not be used for spam, phishing, social engineering, or unauthorized contact.
+The `Location` header identifies where a client should go after a redirect.
+
+Example:
+
+```text
+location: https://www.networkwalks.com/
+```
+
+Redirects may reveal canonical hostnames, HTTPS enforcement, login paths, or application routing behavior.
+
+### `Set-Cookie`
+
+The `Set-Cookie` header instructs the browser to store a cookie.
+
+Important cookie attributes include:
+
+| Attribute | Purpose |
+|---|---|
+| `Secure` | Sends the cookie only over HTTPS. |
+| `HttpOnly` | Prevents ordinary client-side JavaScript from reading the cookie. |
+| `SameSite` | Helps control cross-site cookie behavior. |
+| `Domain` | Defines which domain can receive the cookie. |
+| `Path` | Defines which URL paths can receive the cookie. |
+
+### `Cache-Control`
+
+The `Cache-Control` header defines caching behavior for browsers, proxies, and other intermediate systems.
+
+Examples include:
+
+```text
+cache-control: no-store
+cache-control: max-age=600
+cache-control: public
+```
+
+### `Content-Type`
+
+The `Content-Type` header identifies the type of content returned by the server.
+
+Example:
+
+```text
+content-type: text/html; charset=UTF-8
+```
+
+### Security Headers
+
+The response may contain security-related headers such as:
+
+- `Strict-Transport-Security`.
+- `Content-Security-Policy`.
+- `X-Content-Type-Options`.
+- `X-Frame-Options`.
+- `Referrer-Policy`.
+- `Permissions-Policy`.
+
+The presence, absence, and configuration of these headers can help indicate the security maturity of a web application.
+
+---
+
+## Redirects, Cookies, and Hidden Endpoints
+
+### Redirect Analysis
+
+Use the following command to view redirects:
+
+```bash
+curl -L -I https://networkwalks.com
+```
+
+A redirect chain may show:
+
+- HTTP-to-HTTPS enforcement.
+- A redirect from a non-canonical hostname.
+- A CDN or proxy endpoint.
+- Login or authentication paths.
+- Application routing behavior.
+
+### Cookie Analysis
+
+Look for headers such as:
+
+```text
+set-cookie: session=value; Secure; HttpOnly; SameSite=Lax
+```
+
+Cookies should be reviewed for secure attributes, session identifiers, tracking behavior, and unnecessarily broad domain or path scope.
+
+Do not reuse, modify, or attack session cookies unless this is explicitly authorized in the rules of engagement.
+
+### Publicly Exposed Endpoints
+
+HTTP response headers can expose links to related resources or application APIs. The task material highlights the possibility of a WordPress REST API reference such as:
+
+```text
+/wp-json/
+```
+
+A visible endpoint is not automatically a vulnerability. It should be documented as an observation and tested only when the assessment scope explicitly permits it.
 
 ---
 
 ## 🔴 Attacker Perspective
 
-From an attacker’s perspective, `whatweb` is useful for building a technology profile before attempting any further activity. Detected software and versions may be compared with publicly known vulnerability information during an authorized assessment.
+From an attacker’s perspective, HTTP headers provide a quick way to fingerprint the web stack and identify how the application is configured.
 
-A permitted assessment may use the results to:
+During an **authorized security assessment**, the results may be used to:
 
-- Identify the apparent web-server platform.
-- Identify the CMS and installed components.
-- Record software versions exposed by the target.
-- Compare identified versions with approved vulnerability databases.
-- Detect potentially interesting paths, plugins, or public metadata.
-- Plan only the next checks allowed by the rules of engagement.
+- Identify the web-server platform.
+- Determine the HTTP version in use.
+- Observe redirects and canonical hostnames.
+- Identify cookies and session-management attributes.
+- Identify caching behavior and proxy infrastructure.
+- Detect application frameworks or runtime information.
+- Locate publicly referenced endpoints such as `/wp-json/`.
+- Compare exposed technologies with approved vulnerability information.
 
-The task material highlights that a WordPress installation, plugin information, server details, IP address, or email address may be exposed through fingerprinting.
+Headers can reveal useful information without downloading the complete webpage. However, a header observation is not proof that the detected server or application is vulnerable.
 
-> **Safety boundary:** Detecting a technology or version does not prove that the system is vulnerable. Do not exploit, brute-force, scan, or attack any detected component without explicit authorization.
+> **Safety boundary:** Do not access hidden endpoints, manipulate cookies, bypass access controls, or exploit detected technologies without explicit authorization.
 
 ---
 
 ## 🔵 Defender Perspective
 
-Defenders should run technology-fingerprinting checks against their own websites to understand what information is publicly visible to external observers.
+Defenders should inspect their own HTTP headers to determine whether the web application discloses unnecessary information or lacks important security controls.
 
 A defensive review should consider:
 
-- Whether the web-server banner should be hidden or minimized.
-- Whether CMS and plugin versions are publicly exposed.
-- Whether unused plugins, themes, frameworks, or libraries remain installed.
-- Whether email addresses or sensitive metadata appear in page content.
-- Whether old JavaScript libraries contain known security weaknesses.
-- Whether HTTP security headers are configured correctly.
-- Whether the detected software is patched and supported.
+- Whether the `Server` header exposes unnecessary version information.
+- Whether `X-Powered-By` reveals the application runtime.
+- Whether cookies use `Secure`, `HttpOnly`, and appropriate `SameSite` attributes.
+- Whether HTTPS is enforced correctly.
+- Whether redirects lead only to trusted destinations.
+- Whether cache settings protect sensitive information.
+- Whether security headers are present and correctly configured.
+- Whether public API endpoints expose more information than intended.
 
 | Finding | Recommended Defensive Action |
 |---|---|
-| Web-server version exposed | Minimize unnecessary server-banner information. |
-| Outdated CMS or plugin | Patch, upgrade, replace, or remove the component. |
-| Unused plugin or theme | Remove it rather than leaving it disabled. |
-| Public email address | Use appropriate privacy and anti-abuse controls. |
-| Sensitive metadata exposed | Review page source, headers, comments, and public files. |
-| Outdated JavaScript library | Upgrade the library and remove unused dependencies. |
-| Weak HTTP security configuration | Review security headers, cookies, TLS, and redirect behavior. |
+| Server version disclosed | Minimize unnecessary web-server banner information. |
+| Runtime disclosed through `X-Powered-By` | Remove or reduce the header where appropriate. |
+| Cookie missing `Secure` | Send the cookie only over HTTPS. |
+| Cookie missing `HttpOnly` | Protect sensitive session cookies from client-side script access. |
+| Weak `SameSite` setting | Review cross-site cookie behavior and application requirements. |
+| Missing HSTS | Configure HTTPS enforcement where appropriate. |
+| Missing content-security controls | Review and implement suitable security headers. |
+| Public endpoint exposed unnecessarily | Restrict, authenticate, or remove the endpoint where appropriate. |
 
-> **Defensive goal:** Reduce unnecessary technology disclosure while keeping the website patched, functional, and maintainable.
+> **Defensive goal:** Return only the information required for normal operation and configure headers, cookies, redirects, and caching securely.
 
 ---
 
 ## Conclusion
 
-The `whatweb` command provides a fast way to identify technologies that may be publicly exposed by a website. It can reveal the apparent web server, CMS, plugins, frameworks, IP address, version information, and other metadata.
+The `curl -I` command provides a fast way to inspect HTTP response headers without downloading the complete webpage. For `networkwalks.com`, the output can reveal the response status, server banner, cookies, redirects, caching behavior, security headers, and publicly referenced endpoints.
 
-For an authorized security assessment, these findings help create an initial technology inventory. For defenders, the same results show what an external observer can learn and which components may require stronger configuration, patching, or information-disclosure controls.
+For an authorized security assessment, these observations help build an initial profile of the web application. For defenders, the same inspection shows what information is visible to external users and which headers or cookie settings may require improvement.
 
-Fingerprinting results should always be validated before being treated as confirmed technical facts. The presence of a detected technology does not automatically mean that it is vulnerable.
+HTTP headers should be treated as evidence about the server’s public behavior, not as automatic proof of a vulnerability. Any further testing must remain within the approved scope.
 
 ---
 
 <div align="center">
 
-**Week 2 | Project Module 1 | Task 2**
+**Week 2 | Project Module 1 | Task 4**
 
 ![Educational](https://img.shields.io/badge/Use-Educational%20and%20Authorized%20Only-brightgreen?style=flat-square )
 
 </div>
-
 
