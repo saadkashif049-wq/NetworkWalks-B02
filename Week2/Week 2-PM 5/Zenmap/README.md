@@ -448,20 +448,6 @@ The topology diagram should not be treated as a perfect physical network map. It
 
 A professional lab submission should preserve both the raw output and visual evidence.
 
-Recommended folder structure:
-
-```text
-Zenmap-Lab/
-├── README.md
-├── ipconfig.txt
-├── zenmap-ping-scan.txt
-├── zenmap-ping-scan.xml
-├── zenmap-topology.pdf
-└── screenshots/
-    ├── ipconfig.png
-    ├── zenmap-scan.png
-    └── zenmap-topology.png
-```
 
 Each screenshot should show the command, target scope, scan profile, result, and date or terminal context where practical.
 
