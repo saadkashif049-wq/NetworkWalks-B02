@@ -15,19 +15,20 @@ This README documents a lab I completed during my internship, focused on **activ
 
 ## 📖 Table of Contents
 
-- [1. What is Nmap?](#1--what-is-nmap)
-- [2. What is Zenmap?](#2--what-is-zenmap)
-- [3. Zenmap Interface Overview](#3--zenmap-interface-overview)
-- [4. Basic Nmap/Zenmap Commands & Scan Profiles](#4--basic-nmapzenmap-commands--scan-profiles)
-- [5. How Scanning Works (Step by Step)](#5--how-scanning-works-step-by-step)
-- [6. Lab Walkthrough](#6--lab-walkthrough)
-- [7. Reading the Topology Map](#7--reading-the-topology-map)
-- [8. Key Takeaways](#8--key-takeaways)
-- [9. Environment](#9--environment)
-- [Folder Structure](#-repository--folder-structure)
+- [1. What is Nmap?](#what-is-nmap)
+- [2. What is Zenmap?](#what-is-zenmap)
+- [3. Zenmap Interface Overview](#zenmap-interface-overview)
+- [4. Basic Nmap/Zenmap Commands & Scan Profiles](#basic-commands)
+- [5. How Scanning Works (Step by Step)](#how-scanning-works)
+- [6. Lab Walkthrough](#lab-walkthrough)
+- [7. Reading the Topology Map](#reading-the-topology-map)
+- [8. Key Takeaways](#key-takeaways)
+- [9. Environment](#environment)
+- [Folder Structure](#folder-structure)
 
 ---
 
+<a id="what-is-nmap"></a>
 ## 1. 📡 What is Nmap?
 
 **Nmap** (**N**etwork **Map**per) is a free, open-source command-line tool used for **network discovery and security auditing**. It is one of the most widely used tools in networking and cybersecurity, allowing you to:
@@ -42,6 +43,7 @@ Unlike theHarvester (passive OSINT), Nmap performs **active reconnaissance** —
 
 ---
 
+<a id="what-is-zenmap"></a>
 ## 2. 🗺️ What is Zenmap?
 
 **Zenmap** is the **official graphical user interface (GUI)** for Nmap. It was built to make Nmap easier to use for people who prefer a visual interface over memorizing command-line flags.
@@ -58,6 +60,7 @@ In short: **Zenmap = Nmap's engine + a friendly visual dashboard**, making it a 
 
 ---
 
+<a id="zenmap-interface-overview"></a>
 ## 3. 🖼️ Zenmap Interface Overview
 
 | Section | Purpose |
@@ -75,6 +78,7 @@ In short: **Zenmap = Nmap's engine + a friendly visual dashboard**, making it a 
 
 ---
 
+<a id="basic-commands"></a>
 ## 4. ⌨️ Basic Nmap/Zenmap Commands & Scan Profiles
 
 Zenmap's **Profile** dropdown maps directly to real Nmap commands under the hood. Here are the most common ones:
@@ -105,6 +109,7 @@ Zenmap's **Profile** dropdown maps directly to real Nmap commands under the hood
 
 ---
 
+<a id="how-scanning-works"></a>
 ## 5. 🔬 How Scanning Works (Step by Step)
 
 1. 🎯 **You define a target** — a single IP, a hostname, or a whole subnet using CIDR notation (e.g., `/24` for 256 addresses).
@@ -118,6 +123,7 @@ Zenmap's **Profile** dropdown maps directly to real Nmap commands under the hood
 
 ---
 
+<a id="lab-walkthrough"></a>
 ## 6. 🧪 Lab Walkthrough
 
 ### 📌 Step 1 — Identify My Own Network Range (`ipconfig`)
@@ -196,6 +202,7 @@ In my scan's topology view, `localhost` sits at the center with **4 connected no
 
 ---
 
+<a id="reading-the-topology-map"></a>
 ## 7. 🌐 Reading the Topology Map
 
 The Topology view is especially useful for:
@@ -207,6 +214,7 @@ The Topology view is especially useful for:
 
 ---
 
+<a id="key-takeaways"></a>
 ## 8. ✅ Key Takeaways
 
 - 📡 **Nmap** is an **active** scanning tool — unlike passive OSINT tools, it directly contacts target machines.
@@ -217,6 +225,7 @@ The Topology view is especially useful for:
 
 ---
 
+<a id="environment"></a>
 ## 9. 🖥️ Environment
 
 ![Windows](https://img.shields.io/badge/OS-Windows%2010-0078D6?style=flat-square&logo=windows&logoColor=white)
@@ -231,6 +240,7 @@ The Topology view is especially useful for:
 
 ---
 
+<a id="folder-structure"></a>
 ## 📁 Repository / Folder Structure
 
 ```
