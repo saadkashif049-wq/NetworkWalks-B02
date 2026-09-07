@@ -177,3 +177,12 @@ This repository is for educational and portfolio purposes only. The techniques d
 ---
 
 🎉 **Week 4 completed.** Looking forward to **Week 5**! 🚀
+# NetworkWalks Internship — Week 4
+
+This week focused on an authorized black-box web application penetration-testing assessment.
+
+## Deliverables
+
+- [Week 4 Sanitized Case Study](./README_Week4.md)
+- [Download the PDF Report](./Week4/Mediroza_Pentest_Report_Networkwalks.pdf)
+
